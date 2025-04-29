@@ -1,0 +1,13 @@
+pyyaml
+lxml
+gym==0.17.1
+networkx
+mujoco_py==2.0.2.8
+tensorboard
+torch
+torchvision
+cython<3
+numpy==2.0.0
+hydra-core
+wandb
+matplotlib

@@ -101,7 +101,7 @@ def maybe_infer_walkers():
 
     cfg.ENV.WALKERS = [
         xml_file.split(".")[0]
-        for xml_file in os.listdir(os.path.join(cfg.ENV.WALKER_DIR, "xml"))
+        for xml_file in os.listdir(os.path.join(cfg.ENV.WALKER_DIR, "xml")) if "-parsed" not in xml_file
     ]
 
     if cfg.ENV_NAME == 'Modular-v0':

@@ -24,8 +24,26 @@ def get_files(_dir, reg_str, sort=False, sort_type=None):
 
 
 def save_json(data, path):
-    with open(path, "w") as f:
-        json.dump(data, f, indent=2)
+    import numpy as np
+    def convert_numpy(obj):
+        if isinstance(obj, dict):
+            return {k: convert_numpy(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [convert_numpy(i) for i in obj]
+        elif isinstance(obj, tuple):
+            return tuple(convert_numpy(i) for i in obj)
+        elif isinstance(obj, np.generic):
+            return obj.item()
+        else:
+            return obj
+
+    try:
+        with open(path, "w") as f:
+            json.dump(data, f, indent=2)
+    except:
+        data = convert_numpy(data)
+        with open(path, "w") as f:
+            json.dump(data, f, indent=2)
 
 
 def load_json(path):

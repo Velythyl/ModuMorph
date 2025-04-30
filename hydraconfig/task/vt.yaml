@@ -1,0 +1,4 @@
+task_name: variable terrain
+task_shorthand: vt
+
+yacs_arg: --cfg ./configs/csr.yaml

@@ -1,0 +1,5 @@
+project: morphoaware
+run_name: debuggingMetamorph
+tags: []
+seed: -1
+wandb_mode: "online" # disabled | online | offline

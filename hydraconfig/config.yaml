@@ -1,0 +1,9 @@
+
+defaults:
+  - meta: meta
+  - dataset: unimals_train
+  - model: metamorph
+  - script: train_ppo
+  - task: ft
+
+other_yacs_arg: "DEVICE cpu"

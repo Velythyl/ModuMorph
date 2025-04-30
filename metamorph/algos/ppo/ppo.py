@@ -7,14 +7,16 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import wandb
+
 from metamorph.config import cfg
 from metamorph.envs.vec_env.vec_video_recorder import VecVideoRecorder
 from metamorph.utils import file as fu
 from metamorph.utils import model as mu
 from metamorph.utils import optimizer as ou
 from metamorph.utils.meter import TrainMeter
-from torch.utils import tensorboard
-from torch.utils.tensorboard import SummaryWriter
+#from torch.utils import tensorboard
+#from torch.utils.tensorboard import SummaryWriter
 
 from .buffer import Buffer
 from .envs import get_ob_rms
@@ -23,6 +25,8 @@ from .envs import set_ob_rms
 from .inherit_weight import restore_from_checkpoint
 from .model import ActorCritic
 from .model import Agent
+from tqdm import trange, tqdm
+
 
 class PPO:
     def __init__(self, print_model=True):
@@ -57,7 +61,7 @@ class PPO:
         self.lr_scale = [1. for _ in self.optimizer.param_groups]
 
         self.train_meter = TrainMeter()
-        self.writer = SummaryWriter(log_dir=os.path.join(cfg.OUT_DIR, "tensorboard"))
+        #self.writer = SummaryWriter(log_dir=os.path.join(cfg.OUT_DIR, "tensorboard"))
 
         # Get the param name for log_std term, can vary depending on arch
         for name, param in self.actor_critic.state_dict().items():
@@ -84,7 +88,7 @@ class PPO:
         else:
             self.stat_save_freq = 10
 
-        for cur_iter in range(cfg.PPO.MAX_ITERS):
+        for cur_iter in trange(cfg.PPO.MAX_ITERS, desc="Max iters", position=0):
 
             if cfg.PPO.EARLY_EXIT and cur_iter >= cfg.PPO.EARLY_EXIT_MAX_ITERS:
                 break
@@ -92,7 +96,7 @@ class PPO:
             lr = ou.get_iter_lr(cur_iter)
             ou.set_lr(self.optimizer, lr, self.lr_scale)
 
-            for step in range(cfg.PPO.TIMESTEPS):
+            for step in trange(cfg.PPO.TIMESTEPS, desc="Collecting interactions", position=1, leave=False):
                 # get the id of each robot if needed
                 if cfg.MODEL.TRANSFORMER.PER_NODE_EMBED:
                     unimal_ids = self.envs.get_unimal_idx()
@@ -129,11 +133,16 @@ class PPO:
             self.save_sampled_agent_seq(cur_iter)
 
             self.train_meter.update_mean()
+
+            WANDB_LOGS = {"train/env_steps_done": self.env_steps_done(cur_iter), "train/cur_iter": cur_iter}
+
             if len(self.train_meter.mean_ep_rews["reward"]):
                 cur_rew = self.train_meter.mean_ep_rews["reward"][-1]
-                self.writer.add_scalar(
-                    'Reward', cur_rew, self.env_steps_done(cur_iter)
-                )
+                WANDB_LOGS["train/reward"] = cur_rew
+                #self.writer.add_scalar(
+                #    'Reward', cur_rew, self.env_steps_done(cur_iter)
+                #)
+
             if (
                 cur_iter >= 0
                 and cur_iter % cfg.LOG_PERIOD == 0
@@ -148,6 +157,21 @@ class PPO:
                 stats["fps"] = self.fps
                 fu.save_json(stats, path)
                 print (cfg.OUT_DIR)
+
+                WANDB_LOGS["train/fps"] = stats["fps"]
+                for k,v in stats["__env__"].items():
+                    if isinstance(v, defaultdict):
+                        v = v[k]
+                    if isinstance(v, list) or isinstance(v, tuple) or isinstance(v, np.ndarray):
+                        if len(v) == 0:
+                            v = 0
+
+                        else:
+                            v = v[-1] # np.array(v).mean()
+                    WANDB_LOGS[f"train_stats__env__/{k}"] = v
+
+
+            wandb.log(WANDB_LOGS)
             
             if cur_iter % 100 == 0:
                 self.save_model(cur_iter)
@@ -158,10 +182,10 @@ class PPO:
         adv = self.buffer.ret - self.buffer.val
         adv = (adv - adv.mean()) / (adv.std() + 1e-5)
 
-        for i in range(cfg.PPO.EPOCHS):
+        for i in trange(cfg.PPO.EPOCHS, desc="PPO Epochs", position=1, leave=False):
             batch_sampler = self.buffer.get_sampler(adv)
 
-            for j, batch in enumerate(batch_sampler):
+            for j, batch in enumerate(tqdm(batch_sampler, desc="Batches", position=2, leave=False)):
                 # Reshape to do in a single forward pass for all steps
                 val, _, logp, ent, _, _ = self.actor_critic(batch["obs"], batch["act"], \
                     dropout_mask_v=batch['dropout_mask_v'], \
@@ -224,14 +248,31 @@ class PPO:
                 self.optimizer.step()
 
         # Save weight histogram
-        if cfg.SAVE_HIST_WEIGHTS:
-            for name, weight in self.actor_critic.named_parameters():
-                self.writer.add_histogram(name, weight, cur_iter)
-                try:
-                    self.writer.add_histogram(f"{name}.grad", weight.grad, cur_iter)
-                except NotImplementedError:
-                    # If layer does not have .grad move on
-                    continue
+        #if cfg.SAVE_HIST_WEIGHTS:
+        #    for name, weight in self.actor_critic.named_parameters():
+        #        self.writer.add_histogram(name, weight, cur_iter)
+        #        try:
+        #            self.writer.add_histogram(f"{name}.grad", weight.grad, cur_iter)
+        #        except NotImplementedError:
+        #            # If layer does not have .grad move on
+        #            continue
+
+    def get_actorcritic_weights_hist_logs(self):
+        #if not cfg.SAVE_HIST_WEIGHTS:
+        #    return {}
+
+        ret = {}
+        for name, weight in self.actor_critic.named_parameters():
+            ret[name] = wandb.Histogram(weight.cpu().numpy())
+            #self.writer.add_histogram(name, weight, cur_iter)
+            try:
+                ret[f"{name}.grad"] = wandb.Histogram(weight.grad.cpu().numpy())
+                #self.writer.add_histogram(f"{name}.grad", weight.grad, cur_iter)
+            except NotImplementedError:
+                # If layer does not have .grad move on
+                continue
+        return ret
+
 
     def save_model(self, cur_iter, path=None):
         if not path:
@@ -276,9 +317,10 @@ class PPO:
                 k: v for k, v in hparams.items() if not isinstance(v, list)
             }
             final_env_reward = np.mean(stats["__env__"]["reward"]["reward"][-100:])
-            self.writer.add_hparams(hparams_to_save, {"reward": final_env_reward})
+            #self.writer.add_hparams(hparams_to_save, {"reward": final_env_reward})
+            wandb.log({"Final Env Reward": final_env_reward})
 
-        self.writer.close()
+        #self.writer.close()
 
     def save_video(self, save_dir, xml=None):
         env = make_vec_envs(training=False, norm_rew=False, save_video=True, xml_file=xml)

@@ -1,0 +1,4 @@
+dataset_name: unimals_100
+dataset_split: test
+
+yacs_arg: ENV.WALKER_DIR ./unimals_100/test

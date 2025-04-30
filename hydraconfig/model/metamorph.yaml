@@ -1,0 +1,4 @@
+model_name: metamorph
+model_shorthand: MetaM
+
+yacs_arg: ""

@@ -1,0 +1,4 @@
+model_name: metamorph*
+model_shorthand: MetaM*
+
+yacs_arg: MODEL.TRANSFORMER.EMBEDDING_DROPOUT False MODEL.TRANSFORMER.POS_EMBEDDING None PPO.KL_TARGET_COEF 5.

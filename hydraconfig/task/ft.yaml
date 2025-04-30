@@ -1,0 +1,4 @@
+task_name: flat terrain
+task_shorthand: ft
+
+yacs_arg: --cfg ./configs/ft.yaml

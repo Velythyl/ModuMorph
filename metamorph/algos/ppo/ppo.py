@@ -167,7 +167,7 @@ class PPO:
                             v = 0
 
                         else:
-                            v = v[-1] # np.array(v).mean()
+                            v = np.mean(v[-10:]).item() # np.array(v).mean()
                     WANDB_LOGS[f"train_stats__env__/{k}"] = v
 
 

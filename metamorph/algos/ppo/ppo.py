@@ -96,6 +96,7 @@ class PPO:
             lr = ou.get_iter_lr(cur_iter)
             ou.set_lr(self.optimizer, lr, self.lr_scale)
 
+            ACTION_TIMERS = []
             for step in trange(cfg.PPO.TIMESTEPS, desc="Collecting interactions", position=1, leave=False):
                 # get the id of each robot if needed
                 if cfg.MODEL.TRANSFORMER.PER_NODE_EMBED:
@@ -103,7 +104,11 @@ class PPO:
                 else:
                     unimal_ids = [0 for _ in range(cfg.PPO.NUM_ENVS)]
                 # Sample actions
+
+                time_before_action = time.time()
                 val, act, logp, dropout_mask_v, dropout_mask_mu = self.agent.act(obs, unimal_ids=unimal_ids)
+                time_after_action = time.time()
+                ACTION_TIMERS.append(time_after_action - time_before_action)
 
                 next_obs, reward, done, infos = self.envs.step(act)
 
@@ -170,6 +175,9 @@ class PPO:
                             v = np.mean(v[-10:]).item() # np.array(v).mean()
                     WANDB_LOGS[f"train_stats__env__/{k}"] = v
 
+            WANDB_LOGS["model/avg_action_timer"] = np.array(ACTION_TIMERS).mean().item()
+            self.train_meter.time_total_for_all_actions_so_far += sum(ACTION_TIMERS)
+            WANDB_LOGS["model/total_action_timer_so_far"] = self.train_meter.time_total_for_all_actions_so_far
 
             wandb.log(WANDB_LOGS)
             

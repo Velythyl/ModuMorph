@@ -98,6 +98,9 @@ class TrainMeter:
         self.mean_metric = []
         self.mean_ep_len = []
 
+        # model stats
+        self.time_total_for_all_actions_so_far = 0
+
     def add_train_stat(self, stat_type, stat_value):
         self.train_stats[stat_type].append(stat_value)
 

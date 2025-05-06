@@ -1,4 +1,6 @@
+import os
 import random
+import re
 
 import wandb
 from omegaconf import omegaconf, OmegaConf
@@ -23,7 +25,8 @@ def wandb_init(cfg, meta_key="meta"):
             cfg, resolve=True, throw_on_missing=True
         ),
         tags=cfg[meta_key]["tags"],
-        mode=cfg[meta_key].wandb_mode
+        mode=cfg[meta_key].wandb_mode,
+        dir=cfg[meta_key]["wandb_dir"],
     )
 
     cfg_yaml = OmegaConf.to_yaml(cfg)

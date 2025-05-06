@@ -8,6 +8,11 @@ import shlex
 
 @hydra.main(version_base=None, config_path="hydraconfig", config_name="config")
 def main(cfg):
+
+    if "--dry-run" in " ".join(sys.argv):
+        print(cfg.pretty())
+        exit(0)
+
     wandb_init(cfg)
 
     args = [cfg.task, cfg.dataset, f"OUT_DIR {wandb.run.dir}", f"RNG_SEED {cfg.meta.seed}", cfg.model, cfg.other_yacs_arg]

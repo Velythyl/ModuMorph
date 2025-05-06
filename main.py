@@ -6,11 +6,14 @@ import wandb
 from utils.wandb_hydra import wandb_init
 import shlex
 
+DRY_RUN = False
+
 @hydra.main(version_base=None, config_path="hydraconfig", config_name="config")
 def main(cfg):
 
-    if "--dry-run" in " ".join(sys.argv):
-        print(cfg.pretty())
+    if DRY_RUN:
+        from omegaconf import OmegaConf
+        print(OmegaConf.to_yaml(cfg))
         exit(0)
 
     wandb_init(cfg)
@@ -27,4 +30,10 @@ def main(cfg):
         raise NotImplemented()
 
 if __name__ == "__main__":
+    for i, element in enumerate(sys.argv):
+        if element == "--dry-run":
+            DRY_RUN = True
+            sys.argv.pop(i)
+            break
+
     main()

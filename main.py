@@ -18,7 +18,7 @@ def main(cfg):
 
     wandb_init(cfg)
 
-    args = [cfg.task, cfg.dataset, f"OUT_DIR {wandb.run.dir}", f"RNG_SEED {cfg.meta.seed}", cfg.model, cfg.other_yacs_arg]
+    args = [cfg.task, cfg.dataset, f"OUT_DIR {wandb.run.dir}", f"RNG_SEED {cfg.meta.seed}", cfg.model, cfg.other_yacs_args]
     args = [x.yacs_arg if not isinstance(x, str) else x for x in args]
     args = " ".join(args).strip()
     sys.argv = [cfg.script.script] + shlex.split(args)

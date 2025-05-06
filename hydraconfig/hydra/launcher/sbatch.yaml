@@ -1,29 +1,26 @@
 # @package hydra.launcher
 partition: long
 _target_: hydra_plugins.hydra_submitit_launcher.submitit_launcher.SlurmLauncher
-cpus_per_task: 8
+cpus_per_task: 6
 mem_gb: 40
 tasks_per_node: 1
 stderr_to_stdout: True
-gres: gpu:rtx8000:1 #gpu:32gb:1 # gpu:rtx8000:1 # No MIG: gpu:32gb:1
+gres: gpu:l40s:1 #gpu:32gb:1 # gpu:rtx8000:1 # No MIG: gpu:32gb:1
 submitit_folder: ${hydra.sweep.dir}/submitit/%j
-timeout_min: 1440 # 2 days: 2880 ; 12h : 720 ; 1 day: 1440
+#timeout_min: 1440 # 2 days: 2880 ; 12h : 720 ; 1 day: 1440
 nodes: 1
 name: ${hydra.job.name}
 array_parallelism: 10 # max num of tasks to run in parallel (via job array)
 setup:
   - "export WANDB_DIR=${hydra.sweep.dir}"
   - "export BREAK=False"
-  - "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/cudnn86/lib"
-  - "export CPATH=$CPATH:$HOME/cudnn86/include"
+  - "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/mila/c/charlie.gauthier/.mujoco/mujoco200/bin"
   - 'export WANDB_API_KEY="afe8f40c99e87c32058996ac31bf96e400ea7cc6"'
-  - 'export DISKCACHE_DIR=${oc.env:SCRATCH}/diskcache'
-  - 'export PATH=/venv/bin:$PATH'
-  - "module load python/3.8"
-  - "module load cuda/11.8"
+  - "module load python/3.10"
+  - "module load cuda/12.4.1/cudnn/9.3"
   - "module load libffi"
   - "ulimit -n 16384"
-  - "source $HOME/voxvae/venv/bin/activate"
+  - "source $HOME/metamorph/venv/bin/activate"
   - "sleep $((RANDOM % 100))"
 
 # module load cuda/12.1.1/cudnn

@@ -93,6 +93,8 @@ class TrainMeter:
         # Env stats
         self.train_stats = defaultdict(list)
         self.mean_ep_rews = defaultdict(list)
+        self.std_ep_rews = defaultdict(list)
+
         self.mean_pos = []
         self.mean_vel = []
         self.mean_metric = []
@@ -130,6 +132,7 @@ class TrainMeter:
                 rew_list.append(agent_meter.mean_ep_rews[rew_type][-1])
 
             self.mean_ep_rews[rew_type].append(round(np.mean(rew_list), 2))
+            self.std_ep_rews[rew_type].append(round(np.std(rew_list), 2))
 
     def log_stats(self):
         for _, agent_meter in self.agent_meters.items():
@@ -156,6 +159,7 @@ class TrainMeter:
 
         stats["__env__"] = {
                 "reward": self.mean_ep_rews,
+                "stds": self.std_ep_rews,
                 "pos": self.mean_pos,
                 "vel": self.mean_vel,
                 "metric": self.mean_metric,

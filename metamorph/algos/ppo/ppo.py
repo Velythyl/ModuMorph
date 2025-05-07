@@ -125,6 +125,9 @@ class PPO:
                     device=self.device,
                 )
 
+                if torch.sum(masks) != len(masks) or torch.sum(timeouts) != len(timeouts):
+                    ici = 0
+
                 self.buffer.insert(obs, act, logp, val, reward, masks, timeouts, dropout_mask_v, dropout_mask_mu, unimal_ids)
                 obs = next_obs
 
@@ -144,6 +147,7 @@ class PPO:
             if len(self.train_meter.mean_ep_rews["reward"]):
                 cur_rew = self.train_meter.mean_ep_rews["reward"][-1]
                 WANDB_LOGS["train/reward"] = cur_rew
+                WANDB_LOGS["train/reward_std"] = self.train_meter.std_ep_rews["reward"][-1]
                 #self.writer.add_scalar(
                 #    'Reward', cur_rew, self.env_steps_done(cur_iter)
                 #)

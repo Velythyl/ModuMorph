@@ -507,7 +507,7 @@ _C.CUDNN.DETERMINISTIC = True
 _C.OUT_DIR = "./output"
 
 # Config destination (in OUT_DIR)
-_C.CFG_DEST = "config.yaml"
+_C.CFG_DEST = "yacs_config.yaml"
 
 # Note that non-determinism may still be present due to non-deterministic
 # operator implementations in GPU operator libraries. This is the only seed
@@ -565,7 +565,7 @@ def dump_cfg(cfg_name=None):
         _C.dump(stream=f)
 
 
-def load_cfg(out_dir, cfg_dest="config.yaml"):
+def load_cfg(out_dir, cfg_dest="yacs_config.yaml"):
     """Loads config from specified output directory."""
     cfg_file = os.path.join(out_dir, cfg_dest)
     _C.merge_from_file(cfg_file)

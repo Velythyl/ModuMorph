@@ -2,6 +2,7 @@
 defaults:
   - meta: meta
   - dataset: unimals_train
+  - eval: paths
   - model: metamorph
   - script: train_ppo
   - task: ft

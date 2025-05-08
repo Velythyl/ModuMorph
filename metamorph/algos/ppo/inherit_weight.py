@@ -4,7 +4,7 @@ from metamorph.config import cfg
 
 
 def restore_from_checkpoint(ac):
-    model_p, ob_rms = torch.load(cfg.PPO.CHECKPOINT_PATH)
+    model_p, ob_rms = torch.load(cfg.PPO.CHECKPOINT_PATH, weights_only=False)
 
     state_dict_c = ac.state_dict()
     state_dict_p = model_p.state_dict()

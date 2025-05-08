@@ -1,9 +1,11 @@
+import os
 import sys
+import time
 
 import hydra
 import wandb
 
-from utils.wandb_hydra import wandb_init
+from utils.wandb_hydra import wandb_init, signals
 import shlex
 
 DRY_RUN = False
@@ -17,6 +19,7 @@ def main(cfg):
         exit(0)
 
     wandb_init(cfg)
+    signals(cfg)
 
     args = [cfg.task, cfg.dataset, f"OUT_DIR {wandb.run.dir}", f"RNG_SEED {cfg.meta.seed}", cfg.model, cfg.other_yacs_args]
     args = [x.yacs_arg if not isinstance(x, str) else x for x in args]
@@ -28,6 +31,26 @@ def main(cfg):
         train_ppo.main()
     elif cfg.script.script == "tools/evaluate.py":
         raise NotImplemented()
+
+    from utils.get_checkpoint_path import get_checkpoint_path
+    path_of_latest_checkpoint = get_checkpoint_path(wandb.run.dir, -1)
+    wandb.save(path_of_latest_checkpoint)
+
+    path_of_yacs_config = "/".join(path_of_latest_checkpoint.split("/")[:-1]) + "/yacs_config.yaml"
+    wandb.save(path_of_yacs_config)
+
+    from tools.evaluate import post_train_evaluate
+    for pair in cfg.eval:
+        assert len(pair) == 1
+        for name, path in pair.items():
+            break
+        WANDB_LOGS = post_train_evaluate(path_of_latest_checkpoint, name, path)
+        wandb.log(WANDB_LOGS)
+
+    wandb.finish()
+    # Exit cleanly
+    time.sleep(30)
+    os._exit(0)
 
 if __name__ == "__main__":
     for i, element in enumerate(sys.argv):

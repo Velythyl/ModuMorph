@@ -125,9 +125,6 @@ class PPO:
                     device=self.device,
                 )
 
-                if torch.sum(masks) != len(masks) or torch.sum(timeouts) != len(timeouts):
-                    ici = 0
-
                 self.buffer.insert(obs, act, logp, val, reward, masks, timeouts, dropout_mask_v, dropout_mask_mu, unimal_ids)
                 obs = next_obs
 

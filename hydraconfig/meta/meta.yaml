@@ -4,3 +4,5 @@ tags: []
 seed: -1
 wandb_dir: null
 wandb_mode: "online" # disabled | online | offline
+
+signal_handling: "standard" # standard | requeue

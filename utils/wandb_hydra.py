@@ -1,6 +1,7 @@
 import os
 import random
 import re
+import time
 
 import wandb
 from omegaconf import omegaconf, OmegaConf
@@ -35,3 +36,54 @@ def wandb_init(cfg, meta_key="meta"):
         f.write(cfg_yaml)
 
     return run
+
+def signals(cfg, meta_key="meta", sigcont_cleanup_func=None, sigterm_cleanup_func=None):
+    import signal
+    import sys
+
+    signal_handling = cfg[meta_key].signal_handling
+
+    if signal_handling != "standard":
+        raise NotImplementedError()
+
+    # Function to send SIGKILL to self
+    def kill_self():
+        print("Sending SIGTERM to self...")
+        kill_self()
+        time.sleep(60)
+        exit(-1)
+
+    # Signal handler for SIGCONT
+    def handle_sigcont(signum, frame):
+        print(f"Received SIGCONT (signal {signum})")
+
+        print("Cleanup...")
+        if sigcont_cleanup_func is not None:
+            sigcont_cleanup_func()
+        print("...done!")
+
+        #print(f"SIGNAL HANDLING MODE: {signal_handling}")
+        #if signal_handling == "standard":
+        #    kill_self()
+        #
+        #elif signal_handling == "requeue":
+        #    kill_self()
+
+    # Signal handler for SIGTERM
+    def handle_sigterm(signum, frame):
+        print(f"Received SIGTERM (signal {signum})")
+
+        print("Cleanup...")
+        if sigterm_cleanup_func is not None:
+            sigterm_cleanup_func()
+        print("...done!")
+
+        print(f"SIGNAL HANDLING MODE: {signal_handling}")
+        if signal_handling == "standard":
+            kill_self()
+        elif signal_handling == "requeue":
+            kill_self()
+
+    # Registering signal handlers
+    signal.signal(signal.SIGCONT, handle_sigcont)
+    signal.signal(signal.SIGTERM, handle_sigterm)

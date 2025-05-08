@@ -64,7 +64,7 @@ def evaluate_model(model_path, agent_path, terminate_on_fall=True, deterministic
     deterministic: whether take a deterministic action (mean of the Gaussian action distribution) or a random action
     '''
 
-    test_agents = list(set([x.split('.')[0] for x in os.listdir(f'{agent_path}/xml') if x.endswith('.xml')]))[:5]
+    test_agents = list(set([x.split('.')[0] for x in os.listdir(f'{agent_path}/xml') if x.endswith('.xml')]))
 
     ENV_NAME = cfg.ENV_NAME
     policy_folder = "/".join(model_path.split('/')[:-1])

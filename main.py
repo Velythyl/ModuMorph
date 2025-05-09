@@ -52,6 +52,7 @@ def main(cfg):
             break
         eval_logs = post_train_evaluate(path_of_latest_checkpoint, name, path)
         EVAL_LOGS.update(eval_logs)
+    EVAL_LOGS = {f"{eval}_{k}":v for k,v in EVAL_LOGS.items()}
     wandb.log(EVAL_LOGS)
 
     print("Done evaluating!")

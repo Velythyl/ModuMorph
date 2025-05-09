@@ -48,10 +48,8 @@ def signals(cfg, meta_key="meta", sigcont_cleanup_func=None, sigterm_cleanup_fun
 
     # Function to send SIGKILL to self
     def kill_self():
-        print("Sending SIGTERM to self...")
-        kill_self()
-        time.sleep(60)
-        exit(-1)
+        time.sleep(10)
+        os._exit(-1)
 
     # Signal handler for SIGCONT
     def handle_sigcont(signum, frame):

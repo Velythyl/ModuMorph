@@ -32,13 +32,18 @@ def main(cfg):
     elif cfg.script.script == "tools/evaluate.py":
         raise NotImplemented()
 
+    print("Done training!")
+    print("Saving yacs_config and checkpoint...")
+
     from utils.get_checkpoint_path import get_checkpoint_path
     path_of_latest_checkpoint = get_checkpoint_path(wandb.run.dir, -1)
     wandb.save(path_of_latest_checkpoint)
 
     path_of_yacs_config = "/".join(path_of_latest_checkpoint.split("/")[:-1]) + "/yacs_config.yaml"
     wandb.save(path_of_yacs_config)
+    print("...done saving!")
 
+    print("Now evaluating (this will take a while)")
     from tools.evaluate import post_train_evaluate
     for pair in cfg.eval:
         assert len(pair) == 1
@@ -47,6 +52,8 @@ def main(cfg):
         WANDB_LOGS = post_train_evaluate(path_of_latest_checkpoint, name, path)
         wandb.log(WANDB_LOGS)
 
+    print("Done evaluating!")
+    print("Bye, have a good day!")
     wandb.finish()
     # Exit cleanly
     time.sleep(30)

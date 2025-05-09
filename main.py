@@ -45,12 +45,14 @@ def main(cfg):
 
     print("Now evaluating (this will take a while)")
     from tools.evaluate import post_train_evaluate
+    EVAL_LOGS = {}
     for pair in cfg.eval:
         assert len(pair) == 1
         for name, path in pair.items():
             break
-        WANDB_LOGS = post_train_evaluate(path_of_latest_checkpoint, name, path)
-        wandb.log(WANDB_LOGS)
+        eval_logs = post_train_evaluate(path_of_latest_checkpoint, name, path)
+        EVAL_LOGS.update(eval_logs)
+    wandb.log(EVAL_LOGS)
 
     print("Done evaluating!")
     print("Bye, have a good day!")

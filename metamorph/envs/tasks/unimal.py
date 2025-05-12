@@ -13,8 +13,7 @@ from metamorph.utils import file as fu
 from metamorph.utils import spaces as spu
 from metamorph.utils import sample as su
 from metamorph.utils import xml as xu
-from metamorph.envs.modules.agent import create_agent_xml
-
+from metamorph.envs.modules.agent import create_agent_xml, Agent
 
 DEFAULT_SIZE = 1024
 DEFAULT_CAMERA_CONFIG = {
@@ -28,10 +27,11 @@ DEFAULT_CAMERA_CONFIG = {
 class UnimalEnv(gym.Env):
     """Superclass for all Unimal tasks."""
 
-    def __init__(self, xml_str, unimal_id):
+    def __init__(self, xml_str, unimal_id, corruption_level=0):
         self.frame_skip = 4
         self.unimal_id = unimal_id
         self.unimal_idx = cfg.ENV.WALKERS.index(unimal_id)
+        self.corruption_level = corruption_level
 
         self.viewer = None
         self._viewers = {}
@@ -74,7 +74,10 @@ class UnimalEnv(gym.Env):
     def _init_modules(self):
         self.modules = OrderedDict()
         for cname in self.module_classes:
-            module = cname()
+            try:
+                module = cname(corruption_level=self.corruption_level)
+            except:
+                module = cname()
             name_str = module.__class__.__name__
             self.modules[name_str] = module
             self.modules[name_str].np_random = self.np_random

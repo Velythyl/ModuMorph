@@ -108,7 +108,11 @@ class ModularEnv(mujoco_env.MujocoEnv, utils.EzPickle):
 
 def make_env(xml):
     env = ModularEnv(xml)
-    if cfg.MODEL.MLP.CONSISTENT_PADDING:
+    if cfg.ENV.MAKE_MODULAR_MATCH_UNIMAL:
+        env = ModularMatchUnimalObservationPadding(env)
+        env = ModularMatchUnimalActionPadding(env)
+
+    elif cfg.MODEL.MLP.CONSISTENT_PADDING:
         env = ConsistentModularObservationPadding(env)
         env = ConsistentModularActionPadding(env)
     else:

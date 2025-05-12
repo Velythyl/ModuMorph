@@ -17,12 +17,14 @@ from metamorph.envs.wrappers.multi_env_wrapper import MultiEnvWrapper
 from modular.wrappers import ModularObservationPadding, ModularActionPadding
 
 
-def make_env(env_id, seed, rank, xml_file=None):
+def make_env(env_id, seed, rank, xml_file=None, corruption_level=0):
     def _thunk():
         if env_id in CUSTOM_ENVS:
             if env_id == 'Unimal-v0':
-                env = gym.make(env_id, agent_name=xml_file)
+                env = gym.make(env_id, agent_name=xml_file, corruption_level=corruption_level)
             elif env_id == 'Modular-v0':
+                if corruption_level != 0:
+                    raise NotImplementedError()
                 env = gym.make(f"{xml_file}-v0")
         else:
             env = gym.make(env_id)
@@ -67,7 +69,7 @@ def make_vec_envs(
         if xml_file is None or len(cfg.ENV.WALKERS) == 1:
             xml_file = cfg.ENV.WALKERS[0]
         envs = [
-            make_env(cfg.ENV_NAME, seed, idx, xml_file=xml_file)
+            make_env(cfg.ENV_NAME, seed, idx, xml_file=xml_file, corruption_level=cfg.ENV.CORRUPTION_LEVEL)
             for idx in range(num_env)
         ]
     else:
@@ -78,13 +80,13 @@ def make_vec_envs(
             if not cfg.ENV.FIX_ENV:
                 # randomly sample robots for each process as in MetaMorph
                 for idx in range(num_env):
-                    _env = make_env(cfg.ENV_NAME, seed, idx, xml_file=xml_file)()
+                    _env = make_env(cfg.ENV_NAME, seed, idx, xml_file=xml_file, corruption_level=cfg.ENV.CORRUPTION_LEVEL)()
                     envs.append(env_func_wrapper(MultiEnvWrapper(_env, idx)))
             else:
                 for i, xml in enumerate(cfg.ENV.WALKERS):
-                    _env = make_env(cfg.ENV_NAME, seed, 2 * i, xml_file=xml)()
+                    _env = make_env(cfg.ENV_NAME, seed, 2 * i, xml_file=xml, corruption_level=cfg.ENV.CORRUPTION_LEVEL)()
                     envs.append(env_func_wrapper(_env))
-                    _env = make_env(cfg.ENV_NAME, seed, 2 * i + 1, xml_file=xml)()
+                    _env = make_env(cfg.ENV_NAME, seed, 2 * i + 1, xml_file=xml, corruption_level=cfg.ENV.CORRUPTION_LEVEL)()
                     envs.append(env_func_wrapper(_env))
                 cfg.PPO.NUM_ENVS = len(envs)
         elif cfg.ENV_NAME == 'Modular-v0':

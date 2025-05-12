@@ -26,7 +26,7 @@ def main(cfg):
     args = " ".join(args).strip()
     sys.argv = [cfg.script.script] + shlex.split(args)
 
-    if cfg.script.script == "tools/train_ppo.py":
+    if False: #cfg.script.script == "tools/train_ppo.py":
         from tools import train_ppo
         train_ppo.main()
     elif cfg.script.script == "tools/evaluate.py":
@@ -51,12 +51,13 @@ def main(cfg):
     print("Now evaluating (this will take a while)")
     from tools.evaluate import post_train_evaluate
     EVAL_LOGS = {}
-
     for datasetname, details in cfg.eval.items():
-        eval_logs = post_train_evaluate(path_of_latest_checkpoint, datasetname, details.dataset_path)
-        eval_logs = {f"eval_{k}": v for k, v in eval_logs.items()}
+        if details.disabled:
+            continue
+
+        eval_logs = post_train_evaluate(path_of_latest_checkpoint, datasetname, details)
         EVAL_LOGS.update(eval_logs)
-        wandb.log(EVAL_LOGS)
+    wandb.log(EVAL_LOGS)
 
     print("Done evaluating!")
     print("Bye, have a good day!")

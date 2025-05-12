@@ -12,7 +12,8 @@ from metamorph.utils import positional_encoding as pe
 
 
 class Agent:
-    def __init__(self, random_state=None):
+    def __init__(self, random_state=None, corruption_level=0):
+        self.corruption_level = corruption_level
 
         self.np_random = random_state
 
@@ -244,6 +245,13 @@ class Agent:
 
         joint_range = sim.model.jnt_range[1:, :].copy()
         qpos = (qpos - joint_range[:, 0]) / (joint_range[:, 1] - joint_range[:, 0])
+
+        NUM_Q_TO_CORRUPT = int(round(np.clip(self.corruption_level * qpos.shape[0], 0, qpos.shape[0])))
+        if NUM_Q_TO_CORRUPT == 0:
+            pass
+        else:
+            qpos[:NUM_Q_TO_CORRUPT] = qpos[:NUM_Q_TO_CORRUPT] + self.np_random.randn(NUM_Q_TO_CORRUPT)
+            qvel[:NUM_Q_TO_CORRUPT] = qvel[:NUM_Q_TO_CORRUPT] + self.np_random.randn(NUM_Q_TO_CORRUPT)
 
         obs["qpos"] = qpos[:, np.newaxis]
         obs["qvel"] = qvel[:, np.newaxis]

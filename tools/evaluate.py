@@ -116,17 +116,25 @@ def evaluate_model(model_path, agent_path, terminate_on_fall=True, deterministic
     return box_and_whisker_stats(avg_score)
     #return {f"{output_name}/{k}": v for k,v in stats.items()}
 
-def post_train_evaluate(checkpoint_path, agent_type, agent_path):
+def post_train_evaluate(checkpoint_path, dataset_name, dataset_details):
     #if "unimal" in agent_type.lower():
     #    cfg.ENV_NAME = "Unimal-v0"
     #elif "modular" in agent_type.lower():
     #    cfg.ENV_NAME = "Modular-v0"
 
+    for k, v in dataset_details.yacs_cfg_edits.items():
+        cfg.merge_from_list([k, v])
+
     if not checkpoint_path.endswith('.pt'):
         checkpoint_path = get_checkpoint_path(checkpoint_path, -1)
 
-    ret = evaluate_model(checkpoint_path, agent_path, cfg.TERMINATE_ON_FALL, cfg.DETERMINISTIC)
-    return {f"{agent_type}/{k}":v for k,v in ret.items()}
+    ret_logs = {}
+    for corruption_level in dataset_details.corruption_levels:
+        cfg.merge_from_list(["ENV.CORRUPTION_LEVEL", corruption_level])
+        ret = evaluate_model(checkpoint_path, dataset_details.dataset_path, cfg.TERMINATE_ON_FALL, cfg.DETERMINISTIC)
+        ret = {f"eval_C{corruption_level}_{dataset_name}/{k}":v for k,v in ret.items()}
+        ret_logs.update(ret)
+    return ret_logs
 
 if __name__ == '__main__':
 

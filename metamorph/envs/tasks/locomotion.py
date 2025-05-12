@@ -19,8 +19,8 @@ from metamorph.envs.wrappers.multi_env_wrapper import MultiUnimalNodeCentricObse
 
 
 class LocomotionTask(UnimalEnv, utils.EzPickle):
-    def __init__(self, xml_str, unimal_id):
-        UnimalEnv.__init__(self, xml_str, unimal_id)
+    def __init__(self, xml_str, unimal_id, corruption_level):
+        UnimalEnv.__init__(self, xml_str, unimal_id, corruption_level)
 
     ###########################################################################
     # Sim step and reset
@@ -79,8 +79,8 @@ class LocomotionTask(UnimalEnv, utils.EzPickle):
         return pos_info, forward_reward
 
 
-def make_env_locomotion(xml, unimal_id):
-    env = LocomotionTask(xml, unimal_id)
+def make_env_locomotion(xml, unimal_id, corruption_level=0):
+    env = LocomotionTask(xml, unimal_id, corruption_level=corruption_level)
     # Add modules
     for module in cfg.ENV.MODULES:
         env.add_module(globals()[module])

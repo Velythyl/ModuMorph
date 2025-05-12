@@ -1,9 +1,106 @@
-Unimals_100_test:
-  dataset_path: ./unimals_100/test
-  yacs_cfg_edits:
-    ENV_NAME: Unimal-v0
+
 
 Modular_traintest:
   dataset_path: ./modular/all_traintest
   yacs_cfg_edits:
     ENV_NAME: Modular-v0
+  corruption_levels: [0.0]
+  disabled: True
+
+Unimals_100_test:
+  dataset_path: ./unimals_100/test
+  yacs_cfg_edits:
+    ENV_NAME: Unimal-v0
+  corruption_levels: [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+  disabled: False
+
+Unimals_100_train:
+  dataset_path: ./unimals_100/train
+  yacs_cfg_edits:
+    ENV_NAME: Unimal-v0
+  corruption_levels: [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+  disabled: False
+
+Unimals_100_train_armature:
+  dataset_path: ./unimals_100/train_armature
+  yacs_cfg_edits:
+    ENV_NAME: Unimal-v0
+  corruption_levels: [0.0]
+  disabled: False
+
+Unimals_100_train_damping:
+  dataset_path: ./unimals_100/train_damping
+  yacs_cfg_edits:
+    ENV_NAME: Unimal-v0
+  corruption_levels: [ 0.0]
+  disabled: False
+
+Unimals_100_train_gear:
+  dataset_path: ./unimals_100/train_gear
+  yacs_cfg_edits:
+    ENV_NAME: Unimal-v0
+  corruption_levels: [ 0.0]
+  disabled: False
+
+Unimals_100_train_limb_params:
+  dataset_path: ./unimals_100/train_limb_params
+  yacs_cfg_edits:
+    ENV_NAME: Unimal-v0
+  corruption_levels: [ 0.0]
+  disabled: False
+
+Unimals_100_train_perturb_density:
+  dataset_path: ./unimals_100/train_perturb_density
+  yacs_cfg_edits:
+    ENV_NAME: Unimal-v0
+  corruption_levels: [ 0.0 ]
+  disabled: False
+
+Unimals_100_train_perturb_joint_angle:
+  dataset_path: ./unimals_100/train_perturb_joint_angle
+  yacs_cfg_edits:
+    ENV_NAME: Unimal-v0
+  corruption_levels: [ 0.0]
+  disabled: False
+
+Unimals_100_test_armature:
+  dataset_path: ./unimals_100/test_armature
+  yacs_cfg_edits:
+    ENV_NAME: Unimal-v0
+  corruption_levels: [0.0]
+  disabled: False
+
+Unimals_100_test_damping:
+  dataset_path: ./unimals_100/test_damping
+  yacs_cfg_edits:
+    ENV_NAME: Unimal-v0
+  corruption_levels: [ 0.0]
+  disabled: False
+
+Unimals_100_test_gear:
+  dataset_path: ./unimals_100/test_gear
+  yacs_cfg_edits:
+    ENV_NAME: Unimal-v0
+  corruption_levels: [ 0.0]
+  disabled: False
+
+Unimals_100_test_limb_params:
+  dataset_path: ./unimals_100/test_limb_params
+  yacs_cfg_edits:
+    ENV_NAME: Unimal-v0
+  corruption_levels: [ 0.0]
+  disabled: False
+
+Unimals_100_test_perturb_density:
+  dataset_path: ./unimals_100/test_perturb_density
+  yacs_cfg_edits:
+    ENV_NAME: Unimal-v0
+  corruption_levels: [ 0.0]
+  disabled: False
+
+Unimals_100_test_perturb_joint_angle:
+  dataset_path: ./unimals_100/test_perturb_joint_angle
+  yacs_cfg_edits:
+    ENV_NAME: Unimal-v0
+  corruption_levels: [ 0.0]
+  disabled: False

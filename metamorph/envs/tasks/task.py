@@ -10,13 +10,13 @@ from metamorph.envs.wrappers.select_keys import SelectKeysWrapper
 from metamorph.utils import file as fu
 
 
-def make_env(agent_name):
+def make_env(agent_name, corruption_level=0):
     xml_path = os.path.join(
         cfg.ENV.WALKER_DIR, "xml", "{}.xml".format(agent_name)
     )
     xml = create_agent_xml(xml_path)
     env_func = "make_env_{}".format(cfg.ENV.TASK)
-    env = globals()[env_func](xml, agent_name)
+    env = globals()[env_func](xml, agent_name, corruption_level)
 
     # Add common wrappers in the end
     keys_to_keep = cfg.ENV.KEYS_TO_KEEP + cfg.MODEL.OBS_TYPES

@@ -92,6 +92,9 @@ _C.ENV.NEW_SIM_ON_RESET = True
 # whether to use a fixed env for each process
 _C.ENV.FIX_ENV  = False
 
+_C.ENV.MAKE_MODULAR_MATCH_UNIMAL = True
+_C.ENV.CORRUPTION_LEVEL = 0.0     # 0.0 - 1.0
+
 # ----------------------------------------------------------------------------#
 # Terrain Options
 # ----------------------------------------------------------------------------#

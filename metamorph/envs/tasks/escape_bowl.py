@@ -15,8 +15,8 @@ from metamorph.envs.wrappers.multi_env_wrapper import MultiUnimalNodeCentricObse
 
 
 class EscapeBowlTask(UnimalEnv, utils.EzPickle):
-    def __init__(self, xml_str, unimal_id):
-        UnimalEnv.__init__(self, xml_str, unimal_id)
+    def __init__(self, xml_str, unimal_id, corruption_level=0):
+        UnimalEnv.__init__(self, xml_str, unimal_id, corruption_level=corruption_level)
 
     ###########################################################################
     # Sim step and reset
@@ -57,8 +57,8 @@ class EscapeBowlTask(UnimalEnv, utils.EzPickle):
         return observation, reward, False, info
 
 
-def make_env_escape_bowl(xml, unimal_id):
-    env = EscapeBowlTask(xml, unimal_id)
+def make_env_escape_bowl(xml, unimal_id, corruption_level=0):
+    env = EscapeBowlTask(xml, unimal_id, corruption_level=corruption_level)
     # Add modules
     for module in cfg.ENV.MODULES:
         env.add_module(globals()[module])

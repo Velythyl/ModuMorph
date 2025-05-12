@@ -433,7 +433,7 @@ class ActorCritic(nn.Module):
             # MLP network
             self.v_net = MLPModel(obs_space, cfg.MODEL.MAX_LIMBS)
 
-        if cfg.ENV_NAME == "Unimal-v0":
+        if cfg.ENV_NAME == "Unimal-v0" or (cfg.ENV_NAME == 'Modular-v0' and cfg.ENV.MAKE_MODULAR_MATCH_UNIMAL):
             if cfg.MODEL.TYPE == 'transformer':
                 self.mu_net = TransformerModel(obs_space, 2)
             else:

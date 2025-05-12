@@ -1,10 +1,10 @@
 
 defaults:
   - meta: meta
-  - dataset: modular_train
+  - dataset: unimals_train
   - eval: paths
   - model: metamorph
   - script: train_ppo
   - task: ft
 
-other_yacs_args: "" #"DEVICE cpu"
+other_yacs_args: "DEVICE cpu" #"DEVICE cpu"

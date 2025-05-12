@@ -1,0 +1,4 @@
+dataset_name: modular
+dataset_split: train
+
+yacs_arg: ENV.WALKER_DIR ./modular/all_train ENV_NAME Modular-v0

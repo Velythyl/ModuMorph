@@ -397,6 +397,7 @@ _C.MODEL.TYPE = 'transformer'
 _C.MODEL.MLP = CN()
 _C.MODEL.MLP.HIDDEN_DIM = 256
 _C.MODEL.MLP.LAYER_NUM = 3
+_C.MODEL.MLP.CONSISTENT_PADDING = False
 
 # hyperparameters for transformers
 _C.MODEL.TRANSFORMER = CN()

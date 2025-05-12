@@ -36,7 +36,12 @@ def main(cfg):
     print("Saving yacs_config and checkpoint...")
 
     from utils.get_checkpoint_path import get_checkpoint_path
-    path_of_latest_checkpoint = get_checkpoint_path(wandb.run.dir, -1)
+    PATH_TO_EVAL = wandb.run.dir
+    DEBUG = True
+    if DEBUG:
+        PATH_TO_EVAL = "./savedruns"
+
+    path_of_latest_checkpoint = get_checkpoint_path(PATH_TO_EVAL, -1)
     wandb.save(path_of_latest_checkpoint)
 
     path_of_yacs_config = "/".join(path_of_latest_checkpoint.split("/")[:-1]) + "/yacs_config.yaml"
@@ -46,14 +51,12 @@ def main(cfg):
     print("Now evaluating (this will take a while)")
     from tools.evaluate import post_train_evaluate
     EVAL_LOGS = {}
-    for pair in cfg.eval:
-        assert len(pair) == 1
-        for name, path in pair.items():
-            break
-        eval_logs = post_train_evaluate(path_of_latest_checkpoint, name, path)
+
+    for datasetname, details in cfg.eval.items():
+        eval_logs = post_train_evaluate(path_of_latest_checkpoint, datasetname, details.dataset_path)
+        eval_logs = {f"eval_{k}": v for k, v in eval_logs.items()}
         EVAL_LOGS.update(eval_logs)
-    EVAL_LOGS = {f"{eval}_{k}":v for k,v in EVAL_LOGS.items()}
-    wandb.log(EVAL_LOGS)
+        wandb.log(EVAL_LOGS)
 
     print("Done evaluating!")
     print("Bye, have a good day!")

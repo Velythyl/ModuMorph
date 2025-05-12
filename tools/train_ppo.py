@@ -22,6 +22,11 @@ def set_cfg_options():
 
 
 def calculate_max_limbs_joints():
+    cfg.MODEL.MAX_JOINTS = 16
+    cfg.MODEL.MAX_LIMBS = 12
+    print(cfg.MODEL.MAX_JOINTS, cfg.MODEL.MAX_LIMBS)
+    return
+
     if cfg.ENV_NAME == "Unimal-v0":
 
         num_joints, num_limbs = [], []

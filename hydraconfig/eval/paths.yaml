@@ -1,2 +1,9 @@
+Unimals_100_test:
+  dataset_path: ./unimals_100/test
+  yacs_cfg_edits:
+    ENV_NAME: Unimal-v0
 
-- Unimals_100_test: ./unimals_100/test
+Modular_traintest:
+  dataset_path: ./modular/all_traintest
+  yacs_cfg_edits:
+    ENV_NAME: Modular-v0

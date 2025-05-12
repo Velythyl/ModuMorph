@@ -26,7 +26,7 @@ def main(cfg):
     args = " ".join(args).strip()
     sys.argv = [cfg.script.script] + shlex.split(args)
 
-    if False: #cfg.script.script == "tools/train_ppo.py":
+    if cfg.script.script == "tools/train_ppo.py":
         from tools import train_ppo
         train_ppo.main()
     elif cfg.script.script == "tools/evaluate.py":

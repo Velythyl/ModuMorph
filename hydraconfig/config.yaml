@@ -7,4 +7,4 @@ defaults:
   - script: train_ppo
   - task: ft
 
-other_yacs_args: "DEVICE cpu" #"DEVICE cpu"
+other_yacs_args: "" #"DEVICE cpu"

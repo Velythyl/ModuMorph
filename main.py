@@ -37,7 +37,7 @@ def main(cfg):
 
     from utils.get_checkpoint_path import get_checkpoint_path
     PATH_TO_EVAL = wandb.run.dir
-    DEBUG = True
+    DEBUG = False
     if DEBUG:
         PATH_TO_EVAL = "./savedruns"
 

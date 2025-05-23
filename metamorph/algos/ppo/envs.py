@@ -1,3 +1,4 @@
+import os
 import time
 from collections import defaultdict
 from collections import deque
@@ -21,7 +22,8 @@ def make_env(env_id, seed, rank, xml_file=None, corruption_level=0):
     def _thunk():
         if env_id in CUSTOM_ENVS:
             if env_id == 'Unimal-v0':
-                env = gym.make(env_id, agent_name=xml_file, corruption_level=corruption_level)
+                kwargs = {"corruption_level": corruption_level}
+                env = gym.make(env_id, agent_name=xml_file, kwargs=kwargs)
             elif env_id == 'Modular-v0':
                 if corruption_level != 0:
                     raise NotImplementedError()
@@ -196,6 +198,8 @@ class TimeLimitMask(gym.Wrapper):
 
     def reset(self, **kwargs):
         return self.env.reset(**kwargs)
+
+
 
 
 class RecordEpisodeStatistics(gym.Wrapper):

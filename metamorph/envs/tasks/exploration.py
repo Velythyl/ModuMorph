@@ -17,8 +17,8 @@ from metamorph.envs.wrappers.multi_env_wrapper import MultiUnimalNodeCentricObse
 
 
 class ExplorationTask(UnimalEnv, utils.EzPickle):
-    def __init__(self, xml_str, unimal_id, corruption_level=0):
-        UnimalEnv.__init__(self, xml_str, unimal_id, corruption_level=corruption_level)
+    def __init__(self, xml_str, unimal_id, kwargs):
+        UnimalEnv.__init__(self, xml_str, unimal_id, kwargs)
 
     ###########################################################################
     # Sim step and reset
@@ -56,8 +56,8 @@ class ExplorationTask(UnimalEnv, utils.EzPickle):
         return observation, reward, False, info
 
 
-def make_env_exploration(xml, unimal_id, corruption_level=0):
-    env = ExplorationTask(xml, unimal_id, corruption_level=corruption_level)
+def make_env_exploration(xml, unimal_id, kwargs={"corruption_level":0}):
+    env = ExplorationTask(xml, unimal_id, kwargs=kwargs)
     # Add modules
     for module in cfg.ENV.MODULES:
         env.add_module(globals()[module])

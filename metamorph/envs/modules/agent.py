@@ -12,8 +12,8 @@ from metamorph.utils import positional_encoding as pe
 
 
 class Agent:
-    def __init__(self, random_state=None, corruption_level=0):
-        self.corruption_level = corruption_level
+    def __init__(self, random_state=None, kwargs={"corruption_level": 0}):
+        self.corruption_level = kwargs["corruption_level"]
 
         self.np_random = random_state
 

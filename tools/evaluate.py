@@ -8,6 +8,7 @@ import numpy as np
 import pickle
 import json
 import matplotlib.pyplot as plt
+import wandb
 
 from metamorph.config import cfg
 from metamorph.algos.ppo.ppo import PPO
@@ -128,13 +129,12 @@ def post_train_evaluate(checkpoint_path, dataset_name, dataset_details):
     if not checkpoint_path.endswith('.pt'):
         checkpoint_path = get_checkpoint_path(checkpoint_path, -1)
 
-    ret_logs = {}
     for corruption_level in dataset_details.corruption_levels:
+        print(f"Evaluating <{dataset_name}> with corruption level <{corruption_level}>")
         cfg.merge_from_list(["ENV.CORRUPTION_LEVEL", corruption_level])
         ret = evaluate_model(checkpoint_path, dataset_details.dataset_path, cfg.TERMINATE_ON_FALL, cfg.DETERMINISTIC)
-        ret = {f"eval_C{corruption_level}_{dataset_name}/{k}":v for k,v in ret.items()}
-        ret_logs.update(ret)
-    return ret_logs
+        ret = {f"eval_{dataset_name}_C{corruption_level}/{k}":v for k,v in ret.items()}
+        wandb.log(ret)
 
 if __name__ == '__main__':
 

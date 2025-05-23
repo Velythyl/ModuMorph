@@ -14,8 +14,8 @@ from metamorph.envs.wrappers.multi_env_wrapper import MultiUnimalNodeCentricObse
 
 
 class InclineTask(UnimalEnv, utils.EzPickle):
-    def __init__(self, xml_str, unimal_id, corruption_level=0):
-        UnimalEnv.__init__(self, xml_str, unimal_id, corruption_level=corruption_level)
+    def __init__(self, xml_str, unimal_id, kwargs):
+        UnimalEnv.__init__(self, xml_str, unimal_id, kwargs)
 
     ###########################################################################
     # Sim step and reset
@@ -54,8 +54,8 @@ class InclineTask(UnimalEnv, utils.EzPickle):
         return observation, reward, False, info
 
 
-def make_env_incline(xml, unimal_id, corruption_level=0):
-    env = InclineTask(xml, unimal_id, corruption_level=corruption_level)
+def make_env_incline(xml, unimal_id, kwargs={"corruption_level" :0}):
+    env = InclineTask(xml, unimal_id, kwargs=kwargs)
     # Add modules
     for module in cfg.ENV.MODULES:
         env.add_module(globals()[module])

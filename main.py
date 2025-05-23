@@ -48,16 +48,17 @@ def main(cfg):
     wandb.save(path_of_yacs_config)
     print("...done saving!")
 
-    print("Now evaluating (this will take a while)")
-    from tools.evaluate import post_train_evaluate
-    EVAL_LOGS = {}
-    for datasetname, details in cfg.eval.items():
-        if details.disabled:
-            continue
+    try:
+        print("Now evaluating (this will take a while)")
+        from tools.evaluate import post_train_evaluate
+        for datasetname, details in cfg.eval.items():
+            if details.disabled:
+                continue
 
-        eval_logs = post_train_evaluate(path_of_latest_checkpoint, datasetname, details)
-        EVAL_LOGS.update(eval_logs)
-    wandb.log(EVAL_LOGS)
+            post_train_evaluate(path_of_latest_checkpoint, datasetname, details)
+    except:
+        print("Evaluating failed. Are all the xml files present?")
+        os._exit(-1)
 
     print("Done evaluating!")
     print("Bye, have a good day!")

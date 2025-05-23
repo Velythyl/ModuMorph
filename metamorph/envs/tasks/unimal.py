@@ -1,3 +1,4 @@
+import copy
 import os
 from collections import OrderedDict
 
@@ -5,6 +6,7 @@ import gym
 import mujoco_py
 import numpy as np
 from gym import spaces
+from gym.envs import kwargs
 from gym.utils import seeding
 
 from metamorph.config import cfg
@@ -27,16 +29,18 @@ DEFAULT_CAMERA_CONFIG = {
 class UnimalEnv(gym.Env):
     """Superclass for all Unimal tasks."""
 
-    def __init__(self, xml_str, unimal_id, corruption_level=0):
+    def __init__(self, xml_str, unimal_id, kwargs={"corruption_level": 0}):
         self.frame_skip = 4
         self.unimal_id = unimal_id
         self.unimal_idx = cfg.ENV.WALKERS.index(unimal_id)
-        self.corruption_level = corruption_level
+        self.kwargs = kwargs
 
         self.viewer = None
         self._viewers = {}
 
         self.xml_str = xml_str
+        self.xml_path = kwargs.get("initial_xml_path", "")
+        assert unimal_id in self.xml_path
         self.xml_variants = None
 
         self.metadata = {
@@ -45,13 +49,15 @@ class UnimalEnv(gym.Env):
             "markers": [],
             "metadata": self._load_unimal_metadata(),
             "mirrored": False,
+            "xml_path": self.xml_path,
         }
         self.observation_space = None
         self.sim = None
         self.module_classes = []
         self.modules = OrderedDict()
         self.seed()
-        self.unimal_xmls = self._load_all_unimals()
+        #self.unimal_xmls = self._load_all_unimals()
+        self._load_all_unimals()
 
     def get_unimal_idx(self):
         return self.unimal_idx
@@ -62,7 +68,10 @@ class UnimalEnv(gym.Env):
             os.path.join(dir_path, "{}.xml".format(walker_name))
             for walker_name in cfg.ENV.WALKERS
         ]
-        return [create_agent_xml(path) for path in xml_paths]
+        #return [create_agent_xml(path) for path in xml_paths]
+
+        self.unimal_xmls = [create_agent_xml(path) for path in xml_paths]
+        self.unimal_xmls_paths = copy.deepcopy(xml_paths)
 
     def _load_unimal_metadata(self):
         path = os.path.join(cfg.ENV.WALKER_DIR, "metadata", "{}.json".format(self.unimal_id))
@@ -75,7 +84,7 @@ class UnimalEnv(gym.Env):
         self.modules = OrderedDict()
         for cname in self.module_classes:
             try:
-                module = cname(corruption_level=self.corruption_level)
+                module = cname(kwargs=self.kwargs)
             except:
                 module = cname()
             name_str = module.__class__.__name__
@@ -114,6 +123,9 @@ class UnimalEnv(gym.Env):
             [True, False], self.np_random
         )
         self.xml_str = self.unimal_xmls[idx]
+        self.xml_path = self.unimal_xmls_paths[idx]
+        assert unimal_id in self.xml_path
+        self.metadata["xml_path"] = self.xml_path
 
     ###########################################################################
     # Functions to setup env attributes

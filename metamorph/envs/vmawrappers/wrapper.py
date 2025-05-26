@@ -8,7 +8,7 @@ import functools
 
 import numpy as np
 
-from metamorph.algos.ppo.vmawrappers.vma import VMA
+from metamorph.envs.vmawrappers.vma import VMA
 from metamorph.utils import spaces as spu
 
 
@@ -65,27 +65,26 @@ class VMAObsWrapper(gym.Wrapper):
             return obs
 
         # right now, this impl adds the vma obs as "bodies" and reuses the obs_padding_mask. But, we could also add them as "joints", and add reuse the action mask. This would enable the policy to see where each action gets effectuated (?)
-        vma_obs = []
-        latents = get_latents(self.vma, self.metadata["xml_path"])
-        for limb_name in self.metadata["limb_name"]:
-            vma_obs.append(latents[limb_name])
+        try:
+            latents = get_latents(self.vma, self.metadata["xml_path"])
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Could not find the latent file for {self.metadata['xml_path']}. Please run the vma latent utility.")
+        vma_obs = [latents[limb_name] for limb_name in self.metadata["limb_name"]]
 
-        NUM_PAD = self.unshape_first_size - len(self.metadata["limb_name"])
-        for _ in range(NUM_PAD):
+        for _ in range(self.unshape_first_size):
             vma_obs.append(np.zeros_like(latents[0]))
-
         vma_obs = np.vstack(vma_obs)
 
-        def add_vma_obs_to_vec(vec, vma_obs):
-            vec = vec.reshape(self.unshape_first_size, -1)
-            vec = np.concatenate((vec, vma_obs), axis=1)
-            return vec
+        def add_vma_obs_to_target(vma_obs, target):
+            target = target.reshape(self.unshape_first_size, -1)
+            target = np.concatenate((target, vma_obs), axis=1)
+            return target.reshape(self.unshape_first_size * np.prod(target[0].shape))
 
         obs = copy.deepcopy(obs)
         if self.vma_to_proprioceptive:
-            obs["proprioceptive"] = add_vma_obs_to_vec(obs["proprioceptive"], vma_obs)
+            obs["proprioceptive"] = add_vma_obs_to_target(vma_obs, obs["proprioceptive"])
         if self.vma_to_context:
-            obs["context"] = add_vma_obs_to_vec(obs["context"], vma_obs)
+            obs["context"] = add_vma_obs_to_target(vma_obs, obs["context"])
         return obs
 
     def step(self, action):

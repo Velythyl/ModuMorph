@@ -36,6 +36,12 @@ def make_env(env_id, seed, rank, xml_file=None, corruption_level=0):
         # Don't add wrappers above TimeLimit
         if str(env.__class__.__name__).find("TimeLimit") >= 0:
             env = TimeLimitMask(env)
+
+        DO_VMA = cfg.MODEL.VMA.vma_to_proprioceptive or cfg.MODEL.VMA.vma_to_context
+        if DO_VMA:
+            from metamorph.envs.vmawrappers.wrapper import VMAObsWrapper
+            env = VMAObsWrapper(env, cfg.MODEL.VMA.LATENT_DIR, cfg.MODEL.VMA.CHECK_PATH, cfg.MODEL.VMA.vma_to_proprioceptive, cfg.MODEL.VMA.vma_to_context)
+
         # Store the un-normalized rewards
         env = RecordEpisodeStatistics(env)
         return env

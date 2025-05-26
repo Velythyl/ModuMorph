@@ -6,5 +6,6 @@ defaults:
   - model: metamorph
   - script: train_ppo
   - task: ft
+  - vma: gt
 
 other_yacs_args: "" #"DEVICE cpu"

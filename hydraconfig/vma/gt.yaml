@@ -1,0 +1,5 @@
+add_gt_bodies: True
+add_vma_latents: False
+vma_check_path: null
+
+yacs_arg: MODEL.PROPRIOCEPTIVE_OBS_TYPES "['body_xpos', 'body_xvelp', 'body_xvelr', 'body_xquat', 'body_pos', 'body_ipos', 'body_iquat', 'geom_quat', 'body_mass', 'body_shape', 'qpos', 'qvel', 'jnt_pos', 'joint_range', 'joint_axis', 'gear']" MODEL.CONTEXT_OBS_TYPES "['body_pos', 'body_ipos', 'body_iquat', 'geom_quat', 'body_mass', 'body_shape', 'jnt_pos', 'joint_range', 'joint_axis', 'gear']" MODEL.VMA.CHECK_PATH resnet_upsample-L32-WTrue MODEL.VMA.LATENT_DIR "./vma_latent_dir" MODEL.VMA.vma_to_proprioceptive False MODEL.VMA.vma_to_context False

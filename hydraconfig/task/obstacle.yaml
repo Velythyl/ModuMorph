@@ -1,0 +1,4 @@
+task_name: obstacles
+task_shorthand: ob
+
+yacs_arg: --cfg ./configs/obstacle.yaml

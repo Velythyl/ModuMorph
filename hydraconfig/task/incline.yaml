@@ -1,0 +1,4 @@
+task_name: incline
+task_shorthand: in
+
+yacs_arg: --cfg ./configs/incline.yaml

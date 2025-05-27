@@ -8,4 +8,4 @@ defaults:
   - task: ft
   - vma: gt
 
-other_yacs_args: "" #"DEVICE cpu"
+other_yacs_args: "DEVICE cpu"

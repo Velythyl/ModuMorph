@@ -1,0 +1,4 @@
+task_name: exploration
+task_shorthand: ex
+
+yacs_arg: --cfg ./configs/exploration.yaml

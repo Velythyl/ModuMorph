@@ -99,8 +99,7 @@ def eval_newjob(hydra_cfg):
 @hydra.main(version_base=None, config_path="hydraconfig", config_name="config")
 def main(cfg):
     cfg.meta.sys_argv = sys.argv
-    print(cfg)
-    exit()
+
 
     if DRY_RUN:
         from omegaconf import OmegaConf
@@ -109,6 +108,9 @@ def main(cfg):
 
     wandb_init(cfg)
     signals(cfg)
+
+    print(cfg)
+    exit()
 
     args = [cfg.task, cfg.dataset, f"OUT_DIR {wandb.run.dir}", f"RNG_SEED {cfg.meta.seed}", cfg.model, cfg.other_yacs_args, cfg.vma]
     args = [x.yacs_arg if not isinstance(x, str) else x for x in args]

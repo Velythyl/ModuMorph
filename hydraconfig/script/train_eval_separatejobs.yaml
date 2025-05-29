@@ -1,0 +1,2 @@
+script: ["train", "eval_newjob"]
+path_to_eval: null

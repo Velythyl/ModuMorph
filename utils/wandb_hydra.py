@@ -16,6 +16,7 @@ def set_seed(cfg, meta_key="meta"):
 def wandb_init(cfg, meta_key="meta"):
     set_seed(cfg,meta_key)
 
+
     run = wandb.init(
         # entity=cfg.wandb.entity,
         project=cfg[meta_key].project,

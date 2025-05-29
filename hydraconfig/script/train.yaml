@@ -1,0 +1,2 @@
+script: ["train"]
+path_to_eval: null

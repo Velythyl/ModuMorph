@@ -11,3 +11,5 @@ SLURM_ARRAY_TASK_ID: ${oc.env:SLURM_ARRAY_TASK_ID,null}
 HYDRA_SWEEP_DIR: ${oc.env:HYDRA_SWEEP_DIR,null}
 
 signal_handling: "standard" # standard | requeue
+
+notes: ""

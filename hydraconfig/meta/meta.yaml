@@ -9,6 +9,8 @@ SLURM_JOB_ID: ${oc.env:SLURM_JOB_ID,null}
 SLURM_ARRAY_JOB_ID: ${oc.env:SLURM_ARRAY_JOB_ID,null}
 SLURM_ARRAY_TASK_ID: ${oc.env:SLURM_ARRAY_TASK_ID,null}
 HYDRA_SWEEP_DIR: ${oc.env:HYDRA_SWEEP_DIR,null}
+SLURM_HYDRA_DIR: ${oc.env:HYDRA_SWEEP_DIR,null}/${oc.env:SLURM_ARRAY_TASK_ID,null}/.hydra
+SLURM_HYDRA_OVERRIDES: ${oc.env:HYDRA_SWEEP_DIR,null}/${oc.env:SLURM_ARRAY_TASK_ID,null}/.hydra/overrides.yaml
 
 signal_handling: "standard" # standard | requeue
 

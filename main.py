@@ -86,12 +86,37 @@ def eval_newjob(hydra_cfg):
         #args = [f"{k}={v}" for k, v in flat_cfg.items()]
         return " ".join(args)
 
-    SLURM_FOR_EVAL = f'hydra/launcher=sbatch +hydra/sweep=sbatch +hydra.launcher.timeout_min=2880 hydra.launcher.gres="gpu:0" hydra.launcher.cpus_per_task=16 hydra.launcher.mem_gb=32 hydra.launcher.array_parallelism=2 hydra.launcher.partition=long-cpu meta.project={hydra_cfg.meta.project}EVAL meta.run_name={wandb.run.id}'
+    import yaml
 
-    hydra_cfg.meta.notes = f'wandb_run_id: {wandb.run.id}'
-    hydra_cfg.other_yacs_args = "DEVICE cpu"
+    with open(hydra_cfg.meta.SLURM_HYDRA_OVERRIDES) as stream:
+        overrides = yaml.safe_load(stream)
+    print("DETECTED OVERRIDES:")
+    overrides = " ".join(overrides)
+    print(overrides)
 
-    cmd = f"python3 main.py --multirun {SLURM_FOR_EVAL} {config_to_cli_args(hydra_cfg)}"
+    def prep_args(a):
+        a = " ".join(a.split("\n"))
+        a = a.replace("\t", " ")
+        return a.strip()
+
+    SLURM_FOR_EVAL = prep_args(f'''
+        hydra/launcher=sbatch +hydra/sweep=sbatch +hydra.launcher.timeout_min=2880 hydra.launcher.gres=gpu:0 
+        hydra.launcher.cpus_per_task=16 hydra.launcher.mem_gb=32 hydra.launcher.array_parallelism=2 
+        hydra.launcher.partition=long-cpu 
+    ''')
+
+    META_FOR_EVAL = prep_args(f'''
+        meta.project={hydra_cfg.meta.project}EVAL meta.run_name={wandb.run.id}
+        meta.notes="wandb_run_id: {wandb.run.id}
+    ''')
+
+    ARGS_FOR_EVAL = prep_args(f'''
+        other_yacs_args="DEVICE cpu"
+        script.script=eval
+        script.path_to_eval={hydra_cfg.script.path_to_eval}
+    ''')
+
+    cmd = f"python3 main.py --multirun {SLURM_FOR_EVAL} {overrides} {META_FOR_EVAL} {ARGS_FOR_EVAL}"
 
     from utils.subproc import run_subproc
     run_subproc(cmd, shell=True, timeout=60)
@@ -109,8 +134,8 @@ def main(cfg):
     wandb_init(cfg)
     signals(cfg)
 
-    print(cfg)
-    exit()
+    #print(cfg)
+    #exit()
 
     args = [cfg.task, cfg.dataset, f"OUT_DIR {wandb.run.dir}", f"RNG_SEED {cfg.meta.seed}", cfg.model, cfg.other_yacs_args, cfg.vma]
     args = [x.yacs_arg if not isinstance(x, str) else x for x in args]

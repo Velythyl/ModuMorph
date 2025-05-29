@@ -1,4 +1,5 @@
 import os
+import shutil
 import signal
 import sys
 import time
@@ -107,7 +108,7 @@ def eval_newjob(hydra_cfg):
 
     META_FOR_EVAL = prep_args(f'''
         meta.project={hydra_cfg.meta.project}EVAL meta.run_name={wandb.run.id}
-        meta.notes="wandb_run_id: {wandb.run.id}
+        meta.notes="wandb_run_id: {wandb.run.id}"
     ''')
 
     ARGS_FOR_EVAL = prep_args(f'''

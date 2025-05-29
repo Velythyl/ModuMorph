@@ -46,7 +46,6 @@ def eval(hydra_cfg):
 
     path_of_yacs_config = "/".join(path_of_latest_checkpoint.split("/")[:-1]) + "/yacs_config.yaml"
     wandb.save(path_of_yacs_config)
-    print("...done saving!")
 
     try:
         print("Now evaluating (this will take a while)")
@@ -64,35 +63,6 @@ def eval(hydra_cfg):
         #os.kill(os.getpid(), signal.SIGKILL)
 
 def eval_newjob(hydra_cfg):
-    def flatten_dict(d, parent_key='', sep='.'):
-        """Recursively flattens a nested dictionary."""
-        items = []
-        for k, v in d.items():
-            new_key = f"{parent_key}{sep}{k}" if parent_key else k
-            if isinstance(v, dict):
-                items.extend(flatten_dict(v, new_key, sep=sep).items())
-            else:
-                items.append((new_key, v))
-        return dict(items)
-
-    def config_to_cli_args(cfg):
-        """Convert a Hydra config to a command-line string."""
-        from omegaconf import OmegaConf
-        flat_cfg = flatten_dict(OmegaConf.to_container(cfg, resolve=True))
-        args = []
-        for k, v in flat_cfg.items():
-            if isinstance(v, str) and " " in v and not (v.startswith('"') and v.endswith('"')):
-                v = f'"{v}"'
-            elif v is None:
-                v = "null"
-            else:
-                v = f"{v}"
-                if not (v.startswith('"') and v.endswith('"')):
-                    v = f'"{v}"'
-            args.append(f"{k}={v}")
-        #args = [f"{k}={v}" for k, v in flat_cfg.items()]
-        return " ".join(args)
-
     import yaml
 
     try:
@@ -163,9 +133,6 @@ def actual_main(cfg):
 
     print("Wandb run directory:", wandb.run.dir)
 
-    #print(cfg)
-    #exit()
-
     args = [cfg.task, cfg.dataset, f"OUT_DIR {wandb.run.dir}", f"RNG_SEED {cfg.meta.seed}", cfg.model, cfg.other_yacs_args, cfg.vma]
     args = [x.yacs_arg if not isinstance(x, str) else x for x in args]
     args = " ".join(args).strip()
@@ -181,7 +148,7 @@ def actual_main(cfg):
     }
 
     cfg.script.path_to_eval = wandb.run.dir
-    DEBUG = True
+    DEBUG = False
     if DEBUG:
         shutil.copyfile("./savedruns/yacs_config.yaml", f"{wandb.run.dir}/yacs_config.yaml")
         shutil.copyfile("./savedruns/checkpoint_1200.pt", f"{wandb.run.dir}/checkpoint_1200.pt")
@@ -197,51 +164,6 @@ def actual_main(cfg):
 
         options[script](cfg)
 
-    print("Bye, have a good day!")
-    wandb.finish()
-    # Exit cleanly
-    time.sleep(30)
-    os._exit(0)
-
-    if cfg.script.script[0] == "train":
-        from tools import train_ppo
-        train_ppo.main()
-
-    if cfg.script.script == "tools/train_ppo.py":
-        from tools import train_ppo
-        train_ppo.main()
-    elif cfg.script.script == "tools/evaluate.py":
-        raise NotImplemented()
-
-    print("Done training!")
-    print("Saving yacs_config and checkpoint...")
-
-    from utils.get_checkpoint_path import get_checkpoint_path
-    PATH_TO_EVAL = wandb.run.dir
-    DEBUG = False
-    if DEBUG:
-        PATH_TO_EVAL = "./savedruns"
-
-    path_of_latest_checkpoint = get_checkpoint_path(PATH_TO_EVAL, -1)
-    wandb.save(path_of_latest_checkpoint)
-
-    path_of_yacs_config = "/".join(path_of_latest_checkpoint.split("/")[:-1]) + "/yacs_config.yaml"
-    wandb.save(path_of_yacs_config)
-    print("...done saving!")
-
-    #try:
-    print("Now evaluating (this will take a while)")
-    from tools.evaluate import post_train_evaluate
-    for datasetname, details in cfg.eval.items():
-        if details.disabled:
-            continue
-
-        post_train_evaluate(path_of_latest_checkpoint, datasetname, details)
-    #except Exception as e:
-    #    print("Evaluating failed. Are all the xml files present?")
-    #    raise e
-
-    print("Done evaluating!")
     print("Bye, have a good day!")
     wandb.finish()
     # Exit cleanly

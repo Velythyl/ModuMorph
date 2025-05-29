@@ -10,6 +10,7 @@ from omegaconf import omegaconf, OmegaConf
 def set_seed(cfg, meta_key="meta"):
     seed = cfg[meta_key]["seed"]
     if seed == -1:
+        random.seed(time.time())
         seed = random.randint(0, 20000)
         cfg[meta_key]["seed"] = seed
 

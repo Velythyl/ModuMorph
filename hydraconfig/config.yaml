@@ -4,7 +4,7 @@ defaults:
   - dataset: unimals_train
   - eval: paths
   - model: metamorph
-  - script: train_ppo
+  - script: train_eval_newjob
   - task: ft
   - vma: gt
 

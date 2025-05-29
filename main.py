@@ -1,4 +1,5 @@
 import os
+import signal
 import sys
 import time
 
@@ -53,7 +54,7 @@ def eval(hydra_cfg):
             post_train_evaluate(path_of_latest_checkpoint, datasetname, details)
     except:
         print("Evaluating failed. Are all the xml files present?")
-        os._exit(-1)
+        os.kill(os.getpid(), signal.SIGKILL)
 
 def eval_newjob(hydra_cfg):
     def flatten_dict(d, parent_key='', sep='.'):
@@ -71,12 +72,23 @@ def eval_newjob(hydra_cfg):
         """Convert a Hydra config to a command-line string."""
         from omegaconf import OmegaConf
         flat_cfg = flatten_dict(OmegaConf.to_container(cfg, resolve=True))
-        args = [f"{k}={v}" for k, v in flat_cfg.items()]
+        args = []
+        for k, v in flat_cfg.items():
+            if isinstance(v, str) and " " in v and not (v.startswith('"') and v.endswith('"')):
+                v = f'"{v}"'
+            elif v is None:
+                v = "null"
+            else:
+                v = f"{v}"
+                if not (v.startswith('"') and v.endswith('"')):
+                    v = f'"{v}"'
+            args.append(f"{k}={v}")
+        #args = [f"{k}={v}" for k, v in flat_cfg.items()]
         return " ".join(args)
 
     SLURM_FOR_EVAL = f'hydra/launcher=sbatch +hydra/sweep=sbatch +hydra.launcher.timeout_min=2880 hydra.launcher.gres="gpu:0" hydra.launcher.cpus_per_task=16 hydra.launcher.mem_gb=32 hydra.launcher.array_parallelism=2 hydra.launcher.partition=long-cpu meta.project={hydra_cfg.meta.project}EVAL meta.run_name={wandb.run.id}'
 
-    hydra_cfg.meta.notes = f'{{"wandb_run_id": {wandb.run.id}}}'
+    hydra_cfg.meta.notes = f'wandb_run_id: {wandb.run.id}'
     hydra_cfg.other_yacs_args = "DEVICE cpu"
 
     cmd = f"python3 main.py --multirun {SLURM_FOR_EVAL} {config_to_cli_args(hydra_cfg)}"
@@ -86,6 +98,9 @@ def eval_newjob(hydra_cfg):
 
 @hydra.main(version_base=None, config_path="hydraconfig", config_name="config")
 def main(cfg):
+    cfg.meta.sys_argv = sys.argv
+    print(cfg)
+    exit()
 
     if DRY_RUN:
         from omegaconf import OmegaConf
@@ -94,7 +109,6 @@ def main(cfg):
 
     wandb_init(cfg)
     signals(cfg)
-    cfg.script.path_to_eval = wandb.run.dir
 
     args = [cfg.task, cfg.dataset, f"OUT_DIR {wandb.run.dir}", f"RNG_SEED {cfg.meta.seed}", cfg.model, cfg.other_yacs_args, cfg.vma]
     args = [x.yacs_arg if not isinstance(x, str) else x for x in args]
@@ -107,8 +121,22 @@ def main(cfg):
         "eval_newjob": eval_newjob
     }
 
+    cfg.script.path_to_eval = wandb.run.dir
+    DEBUG = True
+    if DEBUG:
+        cfg.script.path_to_eval = "./savedruns"
+
     for script in cfg.script.script:
+        if DEBUG and script == "train":
+            continue
+
         options[script](cfg)
+
+    print("Bye, have a good day!")
+    wandb.finish()
+    # Exit cleanly
+    time.sleep(30)
+    os._exit(0)
 
     if cfg.script.script[0] == "train":
         from tools import train_ppo
@@ -156,6 +184,7 @@ def main(cfg):
     os._exit(0)
 
 if __name__ == "__main__":
+
     for i, element in enumerate(sys.argv):
         if element == "--dry-run":
             DRY_RUN = True

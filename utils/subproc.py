@@ -28,6 +28,8 @@ class SubprocessResult:
 
 
 def run_subproc(cmd, callback=None, shell=False, timeout=None, timeout_cleanup_func=None, raise_timeout_exception=False):
+    print(">>> Starting subproc for command:")
+    print(f">>>\t{cmd}")
     process = subprocess.Popen(
         cmd,
         stdout=subprocess.PIPE,

@@ -9,6 +9,7 @@ import wandb
 
 from utils.wandb_hydra import wandb_init, signals
 import shlex
+import traceback
 
 DRY_RUN = False
 
@@ -31,6 +32,8 @@ def train(hydra_cfg):
     print("...done saving!")
 
 def eval(hydra_cfg):
+    from tools import train_ppo
+    train_ppo.prep_config_and_dirs()
     from utils.get_checkpoint_path import get_checkpoint_path
     #PATH_TO_EVAL = wandb.run.dir
     #DEBUG = False
@@ -53,9 +56,12 @@ def eval(hydra_cfg):
                 continue
 
             post_train_evaluate(path_of_latest_checkpoint, datasetname, details)
-    except:
+    except Exception as e:
+        print("Exception during evaluation:", e)
+        print(traceback.format_exc())
         print("Evaluating failed. Are all the xml files present?")
-        os.kill(os.getpid(), signal.SIGKILL)
+        raise e
+        #os.kill(os.getpid(), signal.SIGKILL)
 
 def eval_newjob(hydra_cfg):
     def flatten_dict(d, parent_key='', sep='.'):
@@ -89,8 +95,12 @@ def eval_newjob(hydra_cfg):
 
     import yaml
 
-    with open(hydra_cfg.meta.SLURM_HYDRA_OVERRIDES) as stream:
-        overrides = yaml.safe_load(stream)
+    try:
+        with open(hydra_cfg.meta.SLURM_HYDRA_OVERRIDES) as stream:
+            overrides = yaml.safe_load(stream)
+    except FileNotFoundError:
+        with open(hydra_cfg.meta.SLURM_HYDRA_OVERRIDES.replace("/None/", "/0/")) as stream:
+            overrides = yaml.safe_load(stream)
     print("DETECTED OVERRIDES:")
     overrides = " ".join(overrides)
     print(overrides)
@@ -113,18 +123,34 @@ def eval_newjob(hydra_cfg):
 
     ARGS_FOR_EVAL = prep_args(f'''
         other_yacs_args="DEVICE cpu"
-        script.script=eval
+        script=eval
         script.path_to_eval={hydra_cfg.script.path_to_eval}
     ''')
 
-    cmd = f"python3 main.py --multirun {SLURM_FOR_EVAL} {overrides} {META_FOR_EVAL} {ARGS_FOR_EVAL}"
+    print("Preparing to unset slurm...")
+    # yay jank :)
+    UNSET_SLURM = []
+    for k, v in os.environ.items():
+        if k.startswith("SLURM"):
+            UNSET_SLURM.append(f"{k}")
+    if len(UNSET_SLURM) > 0:
+        UNSET_SLURM = "env -u " + " -u ".join(UNSET_SLURM)
+    else:
+        UNSET_SLURM = ""
+    print("WILL UNSET SLURM ENV VARS:", UNSET_SLURM)
+
+    cmd = f'{UNSET_SLURM} python3 main.py --multirun {SLURM_FOR_EVAL} {overrides} {META_FOR_EVAL} {ARGS_FOR_EVAL}'
+    print(cmd)
 
     from utils.subproc import run_subproc
     run_subproc(cmd, shell=True, timeout=60)
+    time.sleep(5)
 
-@hydra.main(version_base=None, config_path="hydraconfig", config_name="config")
-def main(cfg):
+def actual_main(cfg):
     cfg.meta.sys_argv = sys.argv
+
+    print("Running with config:")
+    print(cfg)
 
 
     if DRY_RUN:
@@ -135,13 +161,18 @@ def main(cfg):
     wandb_init(cfg)
     signals(cfg)
 
+    print("Wandb run directory:", wandb.run.dir)
+
     #print(cfg)
     #exit()
 
     args = [cfg.task, cfg.dataset, f"OUT_DIR {wandb.run.dir}", f"RNG_SEED {cfg.meta.seed}", cfg.model, cfg.other_yacs_args, cfg.vma]
     args = [x.yacs_arg if not isinstance(x, str) else x for x in args]
     args = " ".join(args).strip()
-    sys.argv = [cfg.script.script] + shlex.split(args)
+    sys.argv = ["IGNORE"] + shlex.split(args)
+
+    print("sys.argv is now:")
+    print(sys.argv)
 
     options = {
         "train": train,
@@ -152,11 +183,17 @@ def main(cfg):
     cfg.script.path_to_eval = wandb.run.dir
     DEBUG = True
     if DEBUG:
-        cfg.script.path_to_eval = "./savedruns"
+        shutil.copyfile("./savedruns/yacs_config.yaml", f"{wandb.run.dir}/yacs_config.yaml")
+        shutil.copyfile("./savedruns/checkpoint_1200.pt", f"{wandb.run.dir}/checkpoint_1200.pt")
+        cfg.script.path_to_eval = wandb.run.dir
+    
+    print("about to run scripts")
 
     for script in cfg.script.script:
         if DEBUG and script == "train":
             continue
+
+        print(f"Running script: {script}")
 
         options[script](cfg)
 
@@ -192,17 +229,17 @@ def main(cfg):
     wandb.save(path_of_yacs_config)
     print("...done saving!")
 
-    try:
-        print("Now evaluating (this will take a while)")
-        from tools.evaluate import post_train_evaluate
-        for datasetname, details in cfg.eval.items():
-            if details.disabled:
-                continue
+    #try:
+    print("Now evaluating (this will take a while)")
+    from tools.evaluate import post_train_evaluate
+    for datasetname, details in cfg.eval.items():
+        if details.disabled:
+            continue
 
-            post_train_evaluate(path_of_latest_checkpoint, datasetname, details)
-    except:
-        print("Evaluating failed. Are all the xml files present?")
-        os._exit(-1)
+        post_train_evaluate(path_of_latest_checkpoint, datasetname, details)
+    #except Exception as e:
+    #    print("Evaluating failed. Are all the xml files present?")
+    #    raise e
 
     print("Done evaluating!")
     print("Bye, have a good day!")
@@ -210,6 +247,12 @@ def main(cfg):
     # Exit cleanly
     time.sleep(30)
     os._exit(0)
+
+@hydra.main(version_base=None, config_path="hydraconfig", config_name="config")
+def main(cfg):
+    import traceback
+    import sys
+    return actual_main(cfg)
 
 if __name__ == "__main__":
 

@@ -218,7 +218,7 @@ def ppo_train():
     #cleanup_tensorboard()
 
 
-def main():
+def prep_config_and_dirs():
     # Parse cmd line args
     args = parse_args()
 
@@ -240,6 +240,9 @@ def main():
 
     # Save the config
     dump_cfg()
+
+def main():
+    prep_config_and_dirs()
     ppo_train()
 
 

@@ -4,7 +4,11 @@ from metamorph.config import cfg
 
 
 def restore_from_checkpoint(ac):
-    model_p, ob_rms = torch.load(cfg.PPO.CHECKPOINT_PATH, weights_only=False)
+    print("Device is:")
+    print(cfg.DEVICE)
+    MAP_LOCATION = torch.device("cpu") if cfg.DEVICE == "cpu" else None
+    print(f"Loading checkpoint from {cfg.PPO.CHECKPOINT_PATH} on {MAP_LOCATION}")
+    model_p, ob_rms = torch.load(cfg.PPO.CHECKPOINT_PATH, weights_only=False, map_location=MAP_LOCATION)
 
     state_dict_c = ac.state_dict()
     state_dict_p = model_p.state_dict()

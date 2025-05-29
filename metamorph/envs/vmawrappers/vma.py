@@ -101,7 +101,7 @@ class VMA:
         jsonpath = Path("/") / rel_path.with_suffix(".json")
         return jsonpath
 
-    @lru_cache(maxsize=8192)
+    #@lru_cache(maxsize=8192)
     def get_latents_for_robot(self, robot_path):
         latentpath = self.to_latent_path(robot_path)
 

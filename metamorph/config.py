@@ -377,7 +377,7 @@ _C.MODEL.CONTEXT_OBS_TYPES = [
 # VMA observations
 
 _C.MODEL.VMA = CN()
-_C.MODEL.VMA.CHECK_PATH = "resnet_upsample-L32-WTrue"
+_C.MODEL.VMA.CHECK_PATH = "resnet_new_decoder-L16-WTrue"
 _C.MODEL.VMA.LATENT_DIR = "./vma_latent_dir"
 _C.MODEL.VMA.vma_to_proprioceptive = False
 _C.MODEL.VMA.vma_to_context = False

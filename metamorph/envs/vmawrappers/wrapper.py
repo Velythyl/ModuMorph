@@ -25,14 +25,16 @@ def _get_latents(vma, xml_path):
 
     tokeep = {}
     for k, v in raw_latents.items():
-        if k.replace("limbx", "limby") in raw_latents and "limby" not in k:
-            continue
         if "NO_ACTUATORS" in k:
+            k = "torso/0"
+        elif k.replace("limbx", "limby") in raw_latents and "limby" not in k:
             continue
+        
+            #continue
         body_key = k.replace("limbx", "limb").replace("limby", "limb")
         tokeep[body_key] = v
 
-    return copy.deepcopy(tokeep)
+    return tokeep
 
 def get_latents(vma, xml_path):
     return copy.deepcopy(_get_latents(vma, xml_path))
@@ -66,13 +68,17 @@ class VMAObsWrapper(gym.Wrapper):
 
         # right now, this impl adds the vma obs as "bodies" and reuses the obs_padding_mask. But, we could also add them as "joints", and add reuse the action mask. This would enable the policy to see where each action gets effectuated (?)
         try:
-            latents = get_latents(self.vma, self.metadata["xml_path"])
+            xml_path = self.metadata["xml_path"].split("/")[-1]
+            latents = get_latents(self.vma, xml_path)
         except FileNotFoundError:
             raise FileNotFoundError(f"Could not find the latent file for {self.metadata['xml_path']}. Please run the vma latent utility.")
+        x = 0
+        for limb_name in self.metadata["limb_name"]:
+            assert limb_name in latents, f"Expected {limb_name} to be in the latents, but it was not found. Please check the latent file for {self.metadata['xml_path']}."
         vma_obs = [latents[limb_name] for limb_name in self.metadata["limb_name"]]
 
-        for _ in range(self.unshape_first_size):
-            vma_obs.append(np.zeros_like(latents[0]))
+        for _ in range(self.unshape_first_size - len(vma_obs)):
+            vma_obs.append(np.zeros_like(vma_obs[0]))
         vma_obs = np.vstack(vma_obs)
 
         def add_vma_obs_to_target(vma_obs, target):

@@ -1,4 +1,5 @@
 task_name: incline
 task_shorthand: in
+do_random_rots: False
 
 yacs_arg: --cfg ./configs/incline.yaml

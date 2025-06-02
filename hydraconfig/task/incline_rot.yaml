@@ -1,4 +1,5 @@
 task_name: incline with random rotations
 task_shorthand: inRot
+do_random_rots: True
 
 yacs_arg: --cfg ./configs/incline.yaml ENV.RANDOM_INITIAL_ROTATIONS True

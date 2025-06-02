@@ -1,4 +1,5 @@
 task_name: variable terrain
 task_shorthand: vt
+do_random_rots: False
 
 yacs_arg: --cfg ./configs/csr.yaml

@@ -1,4 +1,5 @@
 task_name: obstacles
 task_shorthand: ob
+do_random_rots: False
 
 yacs_arg: --cfg ./configs/obstacle.yaml

@@ -1,4 +1,5 @@
 task_name: variable terrain with random rotations
 task_shorthand: vtRot
+do_random_rots: True
 
 yacs_arg: --cfg ./configs/csr.yaml ENV.RANDOM_INITIAL_ROTATIONS True

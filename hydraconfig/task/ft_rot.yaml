@@ -1,0 +1,4 @@
+task_name: flat terrain with random rotations
+task_shorthand: ftRot
+
+yacs_arg: --cfg ./configs/ft.yaml ENV.RANDOM_INITIAL_ROTATIONS True

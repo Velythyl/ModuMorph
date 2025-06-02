@@ -12,7 +12,7 @@ from metamorph.utils import positional_encoding as pe
 
 
 class Agent:
-    def __init__(self, random_state=None, kwargs={"corruption_level": 0}):
+    def __init__(self, random_state=None, kwargs={"corruption_level": 0, "random_initial_rotations": True}):
         self.corruption_level = kwargs["corruption_level"]
 
         self.np_random = random_state
@@ -32,6 +32,8 @@ class Agent:
             'joint_axis': np.array([[-0.5000024, -0.5000024, -1.], [1., 1., 1.]]), 
             'gear': np.array([[0.], [300.]])
         }
+
+        self.do_random_initial_rotations = kwargs.get("random_initial_rotations", False)
 
     def modify_xml_step(self, env, root, tree):
         # Store agent height
@@ -58,6 +60,21 @@ class Agent:
                 pos[2] -= height
             head.set("pos", xu.arr2str(pos))
             head.set("euler", xu.arr2str([0, cfg.TERRAIN.INCLINE_ANGLE, 0]))
+
+        # if random rotations are enabled, rotate robot
+        if self.do_random_initial_rotations:
+            # get the current euler rotation (defaults to [0, 0, 0] if not set)
+            if head.get("euler"):
+                euler = xu.str2arr(head.get("euler"))
+            else:
+                euler = np.array([0.0, 0.0, 0.0])
+
+            # Add 90 degrees yaw (Z-axis rotation)
+            random_yaw = self.np_random.uniform(0.0, 360.0)  # degrees
+            euler[2] += random_yaw
+            #print(random_yaw)
+
+            head.set("euler", xu.arr2str(euler))
 
         # The center position in escape_bowl is ~0 height so subtract the terrain
         # height which is added in merge agent with base

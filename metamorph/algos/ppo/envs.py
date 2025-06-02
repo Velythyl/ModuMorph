@@ -18,11 +18,11 @@ from metamorph.envs.wrappers.multi_env_wrapper import MultiEnvWrapper
 from modular.wrappers import ModularObservationPadding, ModularActionPadding
 
 
-def make_env(env_id, seed, rank, xml_file=None, corruption_level=0):
+def make_env(env_id, seed, rank, xml_file=None, corruption_level=0, random_initial_rotations=False):
     def _thunk():
         if env_id in CUSTOM_ENVS:
             if env_id == 'Unimal-v0':
-                kwargs = {"corruption_level": corruption_level}
+                kwargs = {"corruption_level": corruption_level, "random_initial_rotations": random_initial_rotations}
                 env = gym.make(env_id, agent_name=xml_file, kwargs=kwargs)
             elif env_id == 'Modular-v0':
                 if corruption_level != 0:
@@ -88,13 +88,13 @@ def make_vec_envs(
             if not cfg.ENV.FIX_ENV:
                 # randomly sample robots for each process as in MetaMorph
                 for idx in range(num_env):
-                    _env = make_env(cfg.ENV_NAME, seed, idx, xml_file=xml_file, corruption_level=cfg.ENV.CORRUPTION_LEVEL)()
+                    _env = make_env(cfg.ENV_NAME, seed, idx, xml_file=xml_file, corruption_level=cfg.ENV.CORRUPTION_LEVEL, random_initial_rotations=cfg.ENV.RANDOM_INITIAL_ROTATIONS)()
                     envs.append(env_func_wrapper(MultiEnvWrapper(_env, idx)))
             else:
                 for i, xml in enumerate(cfg.ENV.WALKERS):
-                    _env = make_env(cfg.ENV_NAME, seed, 2 * i, xml_file=xml, corruption_level=cfg.ENV.CORRUPTION_LEVEL)()
+                    _env = make_env(cfg.ENV_NAME, seed, 2 * i, xml_file=xml, corruption_level=cfg.ENV.CORRUPTION_LEVEL, random_initial_rotations=cfg.ENV.RANDOM_INITIAL_ROTATIONS)()
                     envs.append(env_func_wrapper(_env))
-                    _env = make_env(cfg.ENV_NAME, seed, 2 * i + 1, xml_file=xml, corruption_level=cfg.ENV.CORRUPTION_LEVEL)()
+                    _env = make_env(cfg.ENV_NAME, seed, 2 * i + 1, xml_file=xml, corruption_level=cfg.ENV.CORRUPTION_LEVEL, random_initial_rotations=cfg.ENV.RANDOM_INITIAL_ROTATIONS)()
                     envs.append(env_func_wrapper(_env))
                 cfg.PPO.NUM_ENVS = len(envs)
         elif cfg.ENV_NAME == 'Modular-v0':

@@ -1,0 +1,4 @@
+task_name: obstacles with random rotations
+task_shorthand: obRot
+
+yacs_arg: --cfg ./configs/obstacle.yaml ENV.RANDOM_INITIAL_ROTATIONS True

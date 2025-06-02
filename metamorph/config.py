@@ -94,6 +94,7 @@ _C.ENV.FIX_ENV  = False
 
 _C.ENV.MAKE_MODULAR_MATCH_UNIMAL = True
 _C.ENV.CORRUPTION_LEVEL = 0.0     # 0.0 - 1.0
+_C.ENV.RANDOM_INITIAL_ROTATIONS = False
 
 # ----------------------------------------------------------------------------#
 # Terrain Options

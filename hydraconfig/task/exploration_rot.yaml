@@ -1,0 +1,4 @@
+task_name: exploration with random rotations
+task_shorthand: exRot
+
+yacs_arg: --cfg ./configs/exploration.yaml ENV.RANDOM_INITIAL_ROTATIONS True

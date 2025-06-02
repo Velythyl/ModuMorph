@@ -23,7 +23,38 @@ def make_env(agent_name, kwargs={"corruption_level": 0}):
     env_func = "make_env_{}".format(cfg.ENV.TASK)
     env = globals()[env_func](xml, agent_name, kwargs)
 
+    if False:
+        img = env.render(mode="rgb_array")
+        show_rgb_image(img)
+
+        env.reset()
+        img = env.render(mode="rgb_array")
+        show_rgb_image(img)
+
     # Add common wrappers in the end
     keys_to_keep = cfg.ENV.KEYS_TO_KEEP + cfg.MODEL.OBS_TYPES
     env = SelectKeysWrapper(env, keys_to_keep=keys_to_keep)
     return env
+
+
+
+
+def show_rgb_image(rgb_array, window_name="Image"):
+    import cv2
+    import numpy as np
+    """
+    Displays an RGB image using OpenCV.
+
+    Parameters:
+        rgb_array (np.ndarray): Image in RGB format.
+        window_name (str): Name of the OpenCV window.
+    """
+    # Convert RGB to BGR since OpenCV uses BGR format
+    bgr_image = cv2.cvtColor(rgb_array, cv2.COLOR_RGB2BGR)
+
+    # Show the image
+    cv2.imshow(window_name, bgr_image)
+
+    # Wait until a key is pressed, then close the window
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()

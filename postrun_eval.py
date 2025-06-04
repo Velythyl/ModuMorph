@@ -35,13 +35,11 @@ if __name__ == "__main__":
     for i, element in enumerate(sys.argv):
         if element == "--prepare-run":
             target_dir = sys.argv[i + 1]
-            break
-
-    target_dir = target_dir + "/wandb"
-    runs = os.listdir(target_dir)
-    print("RUNS TO RUN\n\n\n")
-    print(",".join(map(lambda x: f"{target_dir}/{x}", runs)))
-    print("\n\n\n")
-    exit()
+            target_dir = target_dir + "/wandb"
+            runs = os.listdir(target_dir)
+            print("RUNS TO RUN\n\n\n")
+            print(",".join(map(lambda x: f"{target_dir}/{x}", runs)))
+            print("\n\n\n")
+            exit()
 
     main()

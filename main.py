@@ -81,8 +81,8 @@ def eval_newjob(hydra_cfg):
         return a.strip()
 
     SLURM_FOR_EVAL = prep_args(f'''
-        hydra/launcher=sbatch +hydra/sweep=sbatch +hydra.launcher.timeout_min=2880 hydra.launcher.gres=gpu:0 
-        hydra.launcher.cpus_per_task=16 hydra.launcher.mem_gb=32 hydra.launcher.array_parallelism=2 
+        hydra/launcher=sbatch +hydra/sweep=sbatch +hydra.launcher.timeout_min=5760 hydra.launcher.gres=gpu:0 
+        hydra.launcher.cpus_per_task=8 hydra.launcher.mem_gb=32 hydra.launcher.array_parallelism=1 
         hydra.launcher.partition=long-cpu 
     ''')
 

@@ -10,6 +10,7 @@ from omegaconf import OmegaConf
 def main(cfg):
     from main import actual_main
 
+    cfg.postrun_eval_dir = cfg.postrun_eval_dir.strip()
     assert cfg.postrun_eval_dir != "" and cfg.postrun_eval_dir is not None and len(cfg.postrun_eval_dir) > 0
     assert os.path.exists(cfg.postrun_eval_dir)
     assert os.path.exists(cfg.postrun_eval_dir + "/files/checkpoint_1200.pt")

@@ -39,7 +39,9 @@ if __name__ == "__main__":
 
     target_dir = target_dir + "/wandb"
     runs = os.listdir(target_dir)
+    print("RUNS TO RUN\n\n\n")
     print(",".join(map(lambda x: f"{target_dir}/{x}", runs)))
+    print("\n\n\n")
     exit()
 
     main()

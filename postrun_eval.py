@@ -23,6 +23,7 @@ def main(cfg):
         hydra_cfg_from_saved_run = OmegaConf.load(f)
 
     hydra_cfg_from_saved_run.script = eval_config
+    hydra_cfg_from_saved_run.meta = cfg.meta
 
     return actual_main(hydra_cfg_from_saved_run)
 

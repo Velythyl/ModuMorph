@@ -1,0 +1,164 @@
+meta:
+  project: vmaBATCH2
+  run_name: main
+  tags: []
+  seed: 9999
+  wandb_dir: null
+  wandb_mode: online
+  SLURM_JOB_ID: ${oc.env:SLURM_JOB_ID,null}
+  SLURM_ARRAY_JOB_ID: ${oc.env:SLURM_ARRAY_JOB_ID,null}
+  SLURM_ARRAY_TASK_ID: ${oc.env:SLURM_ARRAY_TASK_ID,null}
+  HYDRA_SWEEP_DIR: ${oc.env:HYDRA_SWEEP_DIR,null}
+  SLURM_HYDRA_DIR: ${oc.env:HYDRA_SWEEP_DIR,null}/${oc.env:SLURM_ARRAY_TASK_ID,null}/.hydra
+  SLURM_HYDRA_OVERRIDES: ${oc.env:HYDRA_SWEEP_DIR,null}/${oc.env:SLURM_ARRAY_TASK_ID,null}/.hydra/overrides.yaml
+  signal_handling: standard
+  notes: ''
+  sys_argv:
+  - /home/mila/c/charlie.gauthier/metamorph/venv/lib/python3.10/site-packages/submitit/core/_submit.py
+  - /network/scratch/c/charlie.gauthier/modumorph/multirun/2025-05-29_19-13-50/submitit/%j
+dataset:
+  dataset_name: unimals_100
+  dataset_split: train
+  yacs_arg: ENV.WALKER_DIR ./unimals_100/train ENV_NAME Unimal-v0
+eval:
+  Modular_traintest:
+    dataset_path: ./modular/all_traintest
+    yacs_cfg_edits:
+      ENV_NAME: Modular-v0
+    corruption_levels:
+    - 0.0
+    disabled: true
+  Unimals_100_test:
+    dataset_path: ./unimals_100/test
+    yacs_cfg_edits:
+      ENV_NAME: Unimal-v0
+    corruption_levels:
+    - 0.0
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    - 1.0
+    disabled: false
+  Unimals_100_train:
+    dataset_path: ./unimals_100/train
+    yacs_cfg_edits:
+      ENV_NAME: Unimal-v0
+    corruption_levels:
+    - 0.0
+    - 0.2
+    - 0.4
+    - 0.6
+    - 0.8
+    - 1.0
+    disabled: false
+  Unimals_100_train_armature:
+    dataset_path: ./unimals_100/train_armature
+    yacs_cfg_edits:
+      ENV_NAME: Unimal-v0
+    corruption_levels:
+    - 0.0
+    disabled: false
+  Unimals_100_train_damping:
+    dataset_path: ./unimals_100/train_damping
+    yacs_cfg_edits:
+      ENV_NAME: Unimal-v0
+    corruption_levels:
+    - 0.0
+    disabled: false
+  Unimals_100_train_gear:
+    dataset_path: ./unimals_100/train_gear
+    yacs_cfg_edits:
+      ENV_NAME: Unimal-v0
+    corruption_levels:
+    - 0.0
+    disabled: false
+  Unimals_100_train_limb_params:
+    dataset_path: ./unimals_100/train_limb_params
+    yacs_cfg_edits:
+      ENV_NAME: Unimal-v0
+    corruption_levels:
+    - 0.0
+    disabled: false
+  Unimals_100_train_perturb_density:
+    dataset_path: ./unimals_100/train_perturb_density
+    yacs_cfg_edits:
+      ENV_NAME: Unimal-v0
+    corruption_levels:
+    - 0.0
+    disabled: false
+  Unimals_100_train_perturb_joint_angle:
+    dataset_path: ./unimals_100/train_perturb_joint_angle
+    yacs_cfg_edits:
+      ENV_NAME: Unimal-v0
+    corruption_levels:
+    - 0.0
+    disabled: false
+  Unimals_100_test_armature:
+    dataset_path: ./unimals_100/test_armature
+    yacs_cfg_edits:
+      ENV_NAME: Unimal-v0
+    corruption_levels:
+    - 0.0
+    disabled: false
+  Unimals_100_test_damping:
+    dataset_path: ./unimals_100/test_damping
+    yacs_cfg_edits:
+      ENV_NAME: Unimal-v0
+    corruption_levels:
+    - 0.0
+    disabled: false
+  Unimals_100_test_gear:
+    dataset_path: ./unimals_100/test_gear
+    yacs_cfg_edits:
+      ENV_NAME: Unimal-v0
+    corruption_levels:
+    - 0.0
+    disabled: false
+  Unimals_100_test_limb_params:
+    dataset_path: ./unimals_100/test_limb_params
+    yacs_cfg_edits:
+      ENV_NAME: Unimal-v0
+    corruption_levels:
+    - 0.0
+    disabled: false
+  Unimals_100_test_perturb_density:
+    dataset_path: ./unimals_100/test_perturb_density
+    yacs_cfg_edits:
+      ENV_NAME: Unimal-v0
+    corruption_levels:
+    - 0.0
+    disabled: false
+  Unimals_100_test_perturb_joint_angle:
+    dataset_path: ./unimals_100/test_perturb_joint_angle
+    yacs_cfg_edits:
+      ENV_NAME: Unimal-v0
+    corruption_levels:
+    - 0.0
+    disabled: false
+model:
+  model_name: modumorph
+  model_shorthand: ModuM
+  yacs_arg: PPO.KL_TARGET_COEF 5. MODEL.TRANSFORMER.POS_EMBEDDING None MODEL.TRANSFORMER.EMBEDDING_DROPOUT
+    False MODEL.TRANSFORMER.FIX_ATTENTION True MODEL.TRANSFORMER.HYPERNET True MODEL.TRANSFORMER.CONTEXT_ENCODER
+    linear
+script:
+  script:
+  - train
+  path_to_eval: null
+task:
+  task_name: flat terrain
+  task_shorthand: ft
+  yacs_arg: --cfg ./configs/ft.yaml
+vma:
+  add_gt_bodies: true
+  add_vma_latents: false
+  vma_check_path: null
+  yacs_arg: MODEL.PROPRIOCEPTIVE_OBS_TYPES "['body_xpos', 'body_xvelp', 'body_xvelr',
+    'body_xquat', 'body_pos', 'body_ipos', 'body_iquat', 'geom_quat', 'body_mass',
+    'body_shape', 'qpos', 'qvel', 'jnt_pos', 'joint_range', 'joint_axis', 'gear']"
+    MODEL.CONTEXT_OBS_TYPES "['body_pos', 'body_ipos', 'body_iquat', 'geom_quat',
+    'body_mass', 'body_shape', 'jnt_pos', 'joint_range', 'joint_axis', 'gear']" MODEL.VMA.CHECK_PATH
+    resnet_new_decoder-L16-WTrue MODEL.VMA.LATENT_DIR "./vma_latent_dir" MODEL.VMA.vma_to_proprioceptive
+    False MODEL.VMA.vma_to_context False
+other_yacs_args: ''

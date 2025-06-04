@@ -1,5 +1,5 @@
 import os
-
+import sys
 
 import hydra
 import yaml
@@ -16,7 +16,7 @@ def main(cfg):
 
     with open("./hydraconfig/script/eval.yaml", "r") as f:
         eval_config = OmegaConf.load(f)
-        eval_config.path_to_eval = cfg.postrun_eval_dir + "/files/checkpoint_1200.pt"
+        eval_config.path_to_eval = cfg.postrun_eval_dir + "/files/"
 
     with open(cfg.postrun_eval_dir + "/files/hydra_config.yaml", "r") as f:
         hydra_cfg_from_saved_run = OmegaConf.load(f)
@@ -26,4 +26,14 @@ def main(cfg):
     return actual_main(hydra_cfg_from_saved_run)
 
 if __name__ == "__main__":
+    for i, element in enumerate(sys.argv):
+        if element == "--prepare-run":
+            target_dir = sys.argv[i + 1]
+            break
+
+    target_dir = target_dir + "/wandb"
+    runs = os.listdir(target_dir)
+    print(",".join(runs))
+    exit()
+
     main()

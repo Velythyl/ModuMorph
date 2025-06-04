@@ -29,6 +29,8 @@ def train(hydra_cfg):
 
     path_of_hydra_config = "/".join(path_of_latest_checkpoint.split("/")[:-1]) + "/hydra_config.yaml"
     wandb.save(path_of_hydra_config)
+
+    hydra_cfg.script.path_to_eval = wandb.run.dir
     print("...done saving!")
 
 def eval(hydra_cfg):
@@ -147,7 +149,6 @@ def actual_main(cfg):
         "eval_newjob": eval_newjob
     }
 
-    cfg.script.path_to_eval = wandb.run.dir
     DEBUG = False
     if DEBUG:
         shutil.copyfile("./savedruns/yacs_config.yaml", f"{wandb.run.dir}/yacs_config.yaml")

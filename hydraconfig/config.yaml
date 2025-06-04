@@ -9,3 +9,4 @@ defaults:
   - vma: gt
 
 other_yacs_args: ""# DEVICE cpu"
+postrun_eval_dir: "" # only used by postrun_eval, ignore otherwise

@@ -88,6 +88,7 @@ class PPO:
         else:
             self.stat_save_freq = 10
 
+        TOTAL_DEATH_COUNT = 0
         for cur_iter in trange(cfg.PPO.MAX_ITERS, desc="Max iters", position=0):
 
             if cfg.PPO.EARLY_EXIT and cur_iter >= cfg.PPO.EARLY_EXIT_MAX_ITERS:
@@ -97,6 +98,7 @@ class PPO:
             ou.set_lr(self.optimizer, lr, self.lr_scale)
 
             ACTION_TIMERS = []
+            DEATH_COUNT_DURING_THIS_INTERACTION = 0
             for step in trange(cfg.PPO.TIMESTEPS, desc="Collecting interactions", position=1, leave=False):
                 # get the id of each robot if needed
                 if cfg.MODEL.TRANSFORMER.PER_NODE_EMBED:
@@ -111,6 +113,8 @@ class PPO:
                 ACTION_TIMERS.append(time_after_action - time_before_action)
 
                 next_obs, reward, done, infos = self.envs.step(act)
+
+                DEATH_COUNT_DURING_THIS_INTERACTION += sum([1 for inf in infos if "terminate_on_fall" in inf])
 
                 self.train_meter.add_ep_info(infos)
 
@@ -139,7 +143,13 @@ class PPO:
 
             self.train_meter.update_mean()
 
-            WANDB_LOGS = {"train/env_steps_done": self.env_steps_done(cur_iter), "train/cur_iter": cur_iter}
+            TOTAL_DEATH_COUNT += DEATH_COUNT_DURING_THIS_INTERACTION
+            WANDB_LOGS = {
+                "train/env_steps_done": self.env_steps_done(cur_iter),
+                "train/cur_iter": cur_iter,
+                "train/collection_phase_fall_count": DEATH_COUNT_DURING_THIS_INTERACTION,
+                "train/total_fall_count": TOTAL_DEATH_COUNT,
+            }
 
             if len(self.train_meter.mean_ep_rews["reward"]):
                 cur_rew = self.train_meter.mean_ep_rews["reward"][-1]

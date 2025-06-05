@@ -1,0 +1,14 @@
+ob and vt are messed up. Ran for 1e8 when i had to do 2e8
+
+need to make a new one: ob*, ob*Rot, vt*, vt*Rot that includes the change to 2e8
+
+completely ignore the ob and vt otherwise
+
+
+DEFAULT RUNS:
+- https://wandb.ai/velythyl/vmaBATCH2?nw=nwuservelythyl
+- 5 of each except vt, ob
+
+ROT RUNS:
+- https://wandb.ai/velythyl/vmaBATCH2ROT?nw=nwuservelythyl
+- 5 of each except vtRot, obRot

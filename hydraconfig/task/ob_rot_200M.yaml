@@ -1,0 +1,5 @@
+task_name: obstacles with random rotations 200M steps
+task_shorthand: ob200MRot
+do_random_rots: True
+
+yacs_arg: --cfg ./configs/obstacle.yaml ENV.RANDOM_INITIAL_ROTATIONS True PPO.MAX_STATE_ACTION_PAIRS 2e8

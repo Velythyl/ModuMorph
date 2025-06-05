@@ -1,0 +1,5 @@
+task_name: variable terrain 200M steps
+task_shorthand: vt200M
+do_random_rots: False
+
+yacs_arg: --cfg ./configs/csr.yaml PPO.MAX_STATE_ACTION_PAIRS 2e8

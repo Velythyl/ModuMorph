@@ -11,14 +11,14 @@ Unimals_100_test:
   dataset_path: ./unimals_100/test
   yacs_cfg_edits:
     ENV_NAME: Unimal-v0
-  corruption_levels: [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+  corruption_levels: [0.0] # , 0.2, 0.4, 0.6, 0.8, 1.0]
   disabled: False
 
 Unimals_100_train:
   dataset_path: ./unimals_100/train
   yacs_cfg_edits:
     ENV_NAME: Unimal-v0
-  corruption_levels: [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+  corruption_levels: [0.0] # , 0.2, 0.4, 0.6, 0.8, 1.0]
   disabled: False
 
 Unimals_100_train_armature:

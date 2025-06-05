@@ -5,7 +5,7 @@ defaults:
   - eval: paths
   - model: metamorph
   - script: train
-  - task: ft_rot
+  - task: ft
   - vma: gt
 
 other_yacs_args: ""# DEVICE cpu"

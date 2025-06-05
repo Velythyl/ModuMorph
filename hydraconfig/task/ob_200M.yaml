@@ -1,0 +1,5 @@
+task_name: obstacles 200M steps
+task_shorthand: ob200M
+do_random_rots: False
+
+yacs_arg: --cfg ./configs/obstacle.yaml PPO.MAX_STATE_ACTION_PAIRS 2e8

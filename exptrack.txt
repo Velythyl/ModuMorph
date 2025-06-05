@@ -7,8 +7,17 @@ completely ignore the ob and vt otherwise
 
 DEFAULT RUNS:
 - https://wandb.ai/velythyl/vmaBATCH2?nw=nwuservelythyl
-- 5 of each except vt, ob
+- TRAIN:
+    - RUNNING 5 of ft,in,ex which makes : /network/scratch/c/charlie.gauthier/modumorph/multirun/2025-06-05_13-53-20 (5 for ft, in, ex)
+    - NEED TO RUN 10 of ob200M, vt200M
+- EVAL:
+    - RUNNING /network/scratch/c/charlie.gauthier/modumorph/multirun/2025-05-29_19-13-50 (5 for ft, in, ex)
 
 ROT RUNS:
 - https://wandb.ai/velythyl/vmaBATCH2ROT?nw=nwuservelythyl
-- 5 of each except vtRot, obRot
+-
+- TRAIN:
+    - RUNNING 5 of ft,in,ex which makes: /network/scratch/c/charlie.gauthier/modumorph/multirun/2025-06-02_21-54-45 (BUT STOP OB AND VT)
+    - NEED TO RUN 10 of ob200MRot, vt200MRot
+    - NEED TO RUN 5 of ftRot, inRot, exRot
+- EVAL:

@@ -26,7 +26,9 @@ def main(cfg):
 
     cfg.meta.project = cfg.meta.project + "_EVAL"
     cfg.meta.run_name = cfg.meta.run_name + "_EVAL"
+
     hydra_cfg_from_saved_run.meta = cfg.meta
+    hydra_cfg_from_saved_run.eval = cfg.eval
 
 
     return actual_main(hydra_cfg_from_saved_run)

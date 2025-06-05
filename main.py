@@ -190,6 +190,5 @@ if __name__ == "__main__":
 
 """
 
-python3 main.py --multirun hydra/launcher=sbatch +hydra/sweep=sbatch +hydra.launcher.timeout_min=4000  hydra.launcher.gres=gpu:rtx8000:1 hydra.launcher.cpus_per_task=8 hydra.launcher.mem_gb=32 hydra.launcher.array_parallelism=30 hydra.launcher.partition=long meta.project=vmaBATCH2 meta.run_name=main_rot meta.seed=-1,-1,-1,-1,-1 vma=gt,gt_and_vma,nothing,vma_only task=vt_rot,incline_rot,obstacle_rot,exploration_rot,ft_rot model=modumorph
-
+python3 main.py --multirun hydra/launcher=sbatch +hydra/sweep=sbatch +hydra.launcher.timeout_min=4300  hydra.launcher.gres=gpu:rtx8000:1 hydra.launcher.cpus_per_task=8 hydra.launcher.mem_gb=32 hydra.launcher.array_parallelism=60 hydra.launcher.partition=long meta.project=vmaBATCH2 meta.run_name=main meta.seed=-1,-1,-1,-1,-1 vma=gt,gt_and_vma,nothing,vma_only task=incline,exploration,ft model=modumorph
 """

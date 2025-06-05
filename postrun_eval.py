@@ -30,6 +30,9 @@ def main(cfg):
     hydra_cfg_from_saved_run.meta = cfg.meta
     hydra_cfg_from_saved_run.eval = cfg.eval
 
+    if hydra_cfg_from_saved_run.task.task_shorthand.strip() in ["ob", "obRot"]:
+        exit()
+
 
     return actual_main(hydra_cfg_from_saved_run)
 

@@ -136,7 +136,7 @@ def post_train_evaluate(checkpoint_path, dataset_name, dataset_details):
         cfg.merge_from_list(["ENV.CORRUPTION_LEVEL", corruption_level])
         evaltask_name = f"eval_{dataset_name}_C{corruption_level}"
         ret = evaluate_model(checkpoint_path, dataset_details.dataset_path, cfg.TERMINATE_ON_FALL, cfg.DETERMINISTIC, evaltask_name)
-        ret = {f"eval_{dataset_name}_C{corruption_level}/{k}":v for k,v in ret.items()}
+        ret = {f"{evaltask_name}/{k}":v for k,v in ret.items()}
         wandb.log(ret)
 
 if __name__ == '__main__':

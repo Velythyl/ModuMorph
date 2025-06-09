@@ -30,11 +30,16 @@ def main(cfg):
     hydra_cfg_from_saved_run.meta = cfg.meta
     hydra_cfg_from_saved_run.eval = cfg.eval
 
-    if hydra_cfg_from_saved_run.task.task_shorthand.strip() in ["ob", "obRot"]:
+    if hydra_cfg_from_saved_run.task.task_shorthand.strip() in ["ob", "obRot", "vt", "vtRot"]:
         exit()
 
 
     return actual_main(hydra_cfg_from_saved_run)
+
+def load_saved_hydra_cfg(path):
+    with open(path + "/files/hydra_config.yaml", "r") as f:
+        hydra_cfg_from_saved_run = OmegaConf.load(f)
+    return hydra_cfg_from_saved_run
 
 if __name__ == "__main__":
     for i, element in enumerate(sys.argv):
@@ -42,9 +47,17 @@ if __name__ == "__main__":
             target_dir = sys.argv[i + 1]
             target_dir = target_dir + "/wandb"
             runs = os.listdir(target_dir)
-            runs = [run for run in runs if run.startswith("run-")]
+            _runs = [run for run in runs if run.startswith("run-")]
+            _runs = list(map(lambda x: f"{target_dir}/{x}", _runs))
+
+            runs = []
+            for run in _runs:
+                if load_saved_hydra_cfg(run).task.task_shorthand.strip() in ["ob", "obRot", "vt", "vtRot"]:
+                    continue
+                runs.append(run)
+
             print("RUNS TO RUN\n\n\n")
-            print(",".join(map(lambda x: f"{target_dir}/{x}", runs)))
+            print(",".join(runs))
             print("\n\n\n")
             exit()
 

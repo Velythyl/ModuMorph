@@ -55,7 +55,7 @@ from tqdm import tqdm, trange
 
 
 
-def evaluate_model(model_path, agent_path, terminate_on_fall=True, deterministic=False):
+def evaluate_model(model_path, agent_path, terminate_on_fall=True, deterministic=False, evaltask_name=None):
     '''
     model_path: the path of the .pt model file to evaluate
     agent_path: the path of the test agents
@@ -64,6 +64,8 @@ def evaluate_model(model_path, agent_path, terminate_on_fall=True, deterministic
     terminate_on_fall: whether to early stop an episode if the agent's height is below some threshold value
     deterministic: whether take a deterministic action (mean of the Gaussian action distribution) or a random action
     '''
+
+    assert evaltask_name is not None
 
     test_agents = list(set([x.split('.')[0] for x in os.listdir(f'{agent_path}/xml') if x.endswith('.xml')]))
 
@@ -86,7 +88,7 @@ def evaluate_model(model_path, agent_path, terminate_on_fall=True, deterministic
     # change to eval mode as we may have dropout in the model
     policy.ac.eval()
 
-    EVAL_OUTPUT_FOLDER = f"{policy_folder}/eval"
+    EVAL_OUTPUT_FOLDER = f"{policy_folder}/eval/{evaltask_name}"
     os.makedirs(EVAL_OUTPUT_FOLDER, exist_ok=True)
     output_name = agent_path.replace("/", "-")
 
@@ -132,7 +134,8 @@ def post_train_evaluate(checkpoint_path, dataset_name, dataset_details):
     for corruption_level in dataset_details.corruption_levels:
         print(f"Evaluating <{dataset_name}> with corruption level <{corruption_level}>")
         cfg.merge_from_list(["ENV.CORRUPTION_LEVEL", corruption_level])
-        ret = evaluate_model(checkpoint_path, dataset_details.dataset_path, cfg.TERMINATE_ON_FALL, cfg.DETERMINISTIC)
+        evaltask_name = f"eval_{dataset_name}_C{corruption_level}"
+        ret = evaluate_model(checkpoint_path, dataset_details.dataset_path, cfg.TERMINATE_ON_FALL, cfg.DETERMINISTIC, evaltask_name)
         ret = {f"eval_{dataset_name}_C{corruption_level}/{k}":v for k,v in ret.items()}
         wandb.log(ret)
 

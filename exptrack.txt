@@ -9,7 +9,7 @@ DEFAULT RUNS:
 - https://wandb.ai/velythyl/vmaBATCH2?nw=nwuservelythyl
 - TRAIN:
     - RUNNING 5 of ft,in,ex which makes : /network/scratch/c/charlie.gauthier/modumorph/multirun/2025-06-05_13-53-20 (5 for ft, in, ex)
-    - NEED TO RUN 10 of ob200M, vt200M
+    - RUNNING 10 of ob200M, vt200M, which makes: /network/scratch/c/charlie.gauthier/modumorph/multirun/2025-06-05_17-21-32 (10 for ob200, vt200)
 - EVAL:
     - RUNNING /network/scratch/c/charlie.gauthier/modumorph/multirun/2025-05-29_19-13-50 (5 for ft, in, ex)
 

@@ -59,6 +59,7 @@ if __name__ == "__main__":
             print("RUNS TO RUN\n\n\n")
             print(",".join(runs))
             print("\n\n\n")
+            print(f"Number of runs to run: {len(runs)}")
             exit()
 
     main()

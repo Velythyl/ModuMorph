@@ -1,6 +1,9 @@
 import argparse
 import os
 import sys
+import threading
+import time
+import uuid
 
 import torch
 import torch.nn as nn
@@ -53,6 +56,21 @@ def evaluate(policy, env):
 
 from tqdm import tqdm, trange
 
+def evaluate_agent(ppo_trainer, agent, EVAL_OUTPUT_FOLDER):
+    policy = ppo_trainer.agent
+    policy.ac.eval()
+
+    with suppress_stderr():
+        envs = make_vec_envs(xml_file=agent, training=False, norm_rew=False, render_policy=True)
+        set_ob_rms(envs, get_ob_rms(ppo_trainer.envs))
+
+    episode_return = evaluate(policy, envs)
+    envs.close()
+    print(agent, f'{episode_return.mean():.2f} +- {episode_return.std():.2f}')
+
+    np.savez_compressed(f"{EVAL_OUTPUT_FOLDER}/eval_{agent}.npz", episode_return=episode_return)
+
+    return episode_return
 
 
 def evaluate_model(model_path, agent_path, terminate_on_fall=True, deterministic=False, evaltask_name=None):
@@ -88,35 +106,35 @@ def evaluate_model(model_path, agent_path, terminate_on_fall=True, deterministic
     # change to eval mode as we may have dropout in the model
     policy.ac.eval()
 
-    EVAL_OUTPUT_FOLDER = f"{policy_folder}/eval/{evaltask_name}"
+    EVAL_OUTPUT_FOLDER = f"{policy_folder}/eval/{evaltask_name}".replace(".0", "-0")
     os.makedirs(EVAL_OUTPUT_FOLDER, exist_ok=True)
-    output_name = agent_path.replace("/", "-")
 
-    eval_result = {}
 
     # avg_score stores the per-agent average evaluation return
-    avg_score = []
+    results = []
     for agent in tqdm(test_agents, desc="Evaluating different agents..."):
-        i = test_agents.index(agent)
-        if agent in eval_result:
-            # do not repeat evaluation
-            continue
+        results.append(evaluate_agent(ppo_trainer, agent, EVAL_OUTPUT_FOLDER))
 
-        with suppress_stderr():
-            envs = make_vec_envs(xml_file=agent, training=False, norm_rew=False, render_policy=True)
-            set_ob_rms(envs, get_ob_rms(ppo_trainer.envs))
+    eval_result = {}
+    for i, agent in enumerate(test_agents):
+        eval_result[agent] = results[i]
+    avg_score = np.array([result.mean() for result in results])
 
-        episode_return = evaluate(policy, envs)
-        envs.close()
-        print (agent, f'{episode_return.mean():.2f} +- {episode_return.std():.2f}')
-        eval_result[agent] = episode_return
-        avg_score.append(np.array(episode_return).mean())
+    print(f"Avg score for {evaltask_name}: {avg_score.mean()}")
 
-        with open(f'{EVAL_OUTPUT_FOLDER}/eval_{test_agents[i]}.pkl', 'wb') as f:
-            pickle.dump(eval_result, f)
+    np.savez_compressed(f'{EVAL_OUTPUT_FOLDER}/eval_AVGSCORES.npz', avg_score=avg_score)
+
+    np.savez_compressed(f'{EVAL_OUTPUT_FOLDER}/eval_EVAL_RESULT.npz', **eval_result)
+    #with open(f'{EVAL_OUTPUT_FOLDER}/eval_EVAL_RESULT.pkl', 'wb') as f:
+    #    pickle.dump(eval_result, f)
+
+    bws = box_and_whisker_stats(avg_score)
+    np.savez_compressed(f"{EVAL_OUTPUT_FOLDER}/eval_BOX_AND_WHISKER_STATS.npz", bws=bws)
+    #with open(f"{EVAL_OUTPUT_FOLDER}/eval_BOX_AND_WHISKER_STATS", "wb") as f:
+    #    pickle.dump(bws, f)
 
     print ('avg score across all test agents: ', np.array(avg_score).mean())
-    return box_and_whisker_stats(avg_score)
+    return bws
     #return {f"{output_name}/{k}": v for k,v in stats.items()}
 
 def post_train_evaluate(checkpoint_path, dataset_name, dataset_details):
@@ -135,7 +153,10 @@ def post_train_evaluate(checkpoint_path, dataset_name, dataset_details):
         print(f"Evaluating <{dataset_name}> with corruption level <{corruption_level}>")
         cfg.merge_from_list(["ENV.CORRUPTION_LEVEL", corruption_level])
         evaltask_name = f"eval_{dataset_name}_C{corruption_level}"
+        start = time.time()
         ret = evaluate_model(checkpoint_path, dataset_details.dataset_path, cfg.TERMINATE_ON_FALL, cfg.DETERMINISTIC, evaltask_name)
+        print(time.time() - start)
+        exit()
         ret = {f"{evaltask_name}/{k}":v for k,v in ret.items()}
         wandb.log(ret)
 

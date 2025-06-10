@@ -68,4 +68,6 @@ if __name__ == "__main__":
 
 python3 postrun_eval.py --multirun hydra/launcher=sbatch +hydra/sweep=sbatch +hydra.launcher.timeout_min=2879  hydra.launcher.gres=gpu:l40s:1 hydra.launcher.cpus_per_task=8 hydra.launcher.mem_gb=32 hydra.launcher.array_parallelism=50 hydra.launcher.partition=long meta.project=vmaBATCH2 meta.run_name=main postrun_eval_dir=
 
+python3 postrun_eval.py --multirun hydra/launcher=sbatch +hydra/sweep=sbatch +hydra.launcher.timeout_min=4300  hydra.launcher.gres=gpu:rtx8000:1 hydra.launcher.cpus_per_task=2 hydra.launcher.tasks_per_node=10 hydra.launcher.mem_gb=40 hydra.launcher.array_parallelism=50 hydra.launcher.partition=long meta.project=vmaBATCH2_again meta.run_name=eval postrun_eval_dir=
+
 """

@@ -7,10 +7,6 @@ from pathlib import Path
 import wandb
 from omegaconf import omegaconf, OmegaConf
 
-from omegaconf import OmegaConf
-OmegaConf.register_new_resolver(
-    "load_file", lambda filename: Path(filename).read_text().strip()
-)
 
 
 def set_seed(cfg, meta_key="meta"):

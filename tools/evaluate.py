@@ -82,7 +82,7 @@ def evaluate_model(model_path, agent_path, terminate_on_fall=True, deterministic
 
     assert evaltask_name is not None
 
-    test_agents = list(set([x.split('.')[0] for x in os.listdir(f'{agent_path}/xml') if x.endswith('.xml')]))[:2]
+    test_agents = list(set([x.split('.')[0] for x in os.listdir(f'{agent_path}/xml') if x.endswith('.xml')]))
 
     ENV_NAME = cfg.ENV_NAME
     policy_folder = "/".join(model_path.split('/')[:-1])

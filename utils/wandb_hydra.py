@@ -9,7 +9,7 @@ from omegaconf import omegaconf, OmegaConf
 
 from omegaconf import OmegaConf
 OmegaConf.register_new_resolver(
-    "load_file", lambda filename: Path(filename).read_text()
+    "load_file", lambda filename: Path(filename).read_text().strip()
 )
 
 

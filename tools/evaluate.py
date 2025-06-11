@@ -56,13 +56,10 @@ def evaluate(policy, env):
 
 from tqdm import tqdm, trange
 
-def evaluate_agent(ppo_trainer, agent, EVAL_OUTPUT_FOLDER):
-    policy = ppo_trainer.agent
-    policy.ac.eval()
-
+def evaluate_agent(policy, trainer_envs, agent, EVAL_OUTPUT_FOLDER):
     with suppress_stderr():
         envs = make_vec_envs(xml_file=agent, training=False, norm_rew=False, render_policy=True)
-        set_ob_rms(envs, get_ob_rms(ppo_trainer.envs))
+        set_ob_rms(envs, get_ob_rms(trainer_envs))
 
     episode_return = evaluate(policy, envs)
     envs.close()
@@ -85,7 +82,7 @@ def evaluate_model(model_path, agent_path, terminate_on_fall=True, deterministic
 
     assert evaltask_name is not None
 
-    test_agents = list(set([x.split('.')[0] for x in os.listdir(f'{agent_path}/xml') if x.endswith('.xml')]))
+    test_agents = list(set([x.split('.')[0] for x in os.listdir(f'{agent_path}/xml') if x.endswith('.xml')]))[:2]
 
     ENV_NAME = cfg.ENV_NAME
     policy_folder = "/".join(model_path.split('/')[:-1])
@@ -113,7 +110,7 @@ def evaluate_model(model_path, agent_path, terminate_on_fall=True, deterministic
     # avg_score stores the per-agent average evaluation return
     results = []
     for agent in tqdm(test_agents, desc="Evaluating different agents..."):
-        results.append(evaluate_agent(ppo_trainer, agent, EVAL_OUTPUT_FOLDER))
+        results.append(evaluate_agent(policy, ppo_trainer.envs,agent, EVAL_OUTPUT_FOLDER))
 
     eval_result = {}
     for i, agent in enumerate(test_agents):
@@ -155,9 +152,10 @@ def post_train_evaluate(checkpoint_path, dataset_name, dataset_details):
         evaltask_name = f"eval_{dataset_name}_C{corruption_level}"
         start = time.time()
         ret = evaluate_model(checkpoint_path, dataset_details.dataset_path, cfg.TERMINATE_ON_FALL, cfg.DETERMINISTIC, evaltask_name)
-        print(time.time() - start)
-        exit()
+        time_to_eval = time.time() - start
+        print(time_to_eval)
         ret = {f"{evaltask_name}/{k}":v for k,v in ret.items()}
+        ret[f"{evaltask_name}/time_to_eval"] = time_to_eval
         wandb.log(ret)
 
 if __name__ == '__main__':

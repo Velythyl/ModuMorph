@@ -1,6 +1,6 @@
 # @package hydra.launcher
 partition: long
-_target_: hydra_plugins.hydra_submitit_launcher.submitit_launcher.SlurmLauncher
+_target_: hydra_plugins.hydra_submitit_launcher.submitit_launcher.SlurmLauncher # hydra_plugins.packed_launcher.packedlauncher.PackedSubmititLauncher
 cpus_per_task: 6
 mem_gb: 40
 tasks_per_node: 1

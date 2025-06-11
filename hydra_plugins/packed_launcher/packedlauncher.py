@@ -64,7 +64,7 @@ class PackedSubmititLauncher(BaseSubmititLauncher):
             }
         )
         init_keys = specific_init_keys | {"submitit_folder"}
-        executor = submitit.AutoExecutor(cluster=self._EXECUTOR, **init_params)
+        executor = submitit.AutoExecutor( **init_params)
 
         # specify resources/parameters
         baseparams = set(OmegaConf.structured(BaseQueueConf).keys())

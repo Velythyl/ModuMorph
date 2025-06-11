@@ -16,7 +16,7 @@ setup:
   - "export HYDRA_SWEEP_DIR=${hydra.sweep.dir}"
   - "export BREAK=False"
   - "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/mila/c/charlie.gauthier/.mujoco/mujoco200/bin"
-  - 'export WANDB_API_KEY="${secrets.wandb_key}"'
+  - 'export WANDB_API_KEY="${load_file:secrets/wandb_key.txt}"'
   - 'export TQDM_DISABLE=1'
   - "module load python/3.10"
   - "module load cuda/12.4.1/cudnn/9.3"

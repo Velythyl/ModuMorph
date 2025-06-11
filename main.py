@@ -49,6 +49,9 @@ def eval(hydra_cfg):
     path_of_yacs_config = "/".join(path_of_latest_checkpoint.split("/")[:-1]) + "/yacs_config.yaml"
     wandb.save(path_of_yacs_config)
 
+    path_of_hydra_config = "/".join(path_of_latest_checkpoint.split("/")[:-1]) + "/hydra_config.yaml"
+    wandb.save(path_of_hydra_config)
+
     try:
         print("Now evaluating (this will take a while)")
         from tools.evaluate import post_train_evaluate

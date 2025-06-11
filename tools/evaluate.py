@@ -106,7 +106,6 @@ def evaluate_model(model_path, agent_path, terminate_on_fall=True, deterministic
     EVAL_OUTPUT_FOLDER = f"{policy_folder}/eval/{evaltask_name}".replace(".0", "-0")
     os.makedirs(EVAL_OUTPUT_FOLDER, exist_ok=True)
 
-
     # avg_score stores the per-agent average evaluation return
     results = []
     for agent in tqdm(test_agents, desc="Evaluating different agents..."):
@@ -119,19 +118,18 @@ def evaluate_model(model_path, agent_path, terminate_on_fall=True, deterministic
 
     print(f"Avg score for {evaltask_name}: {avg_score.mean()}")
 
-    np.savez_compressed(f'{EVAL_OUTPUT_FOLDER}/eval_AVGSCORES.npz', avg_score=avg_score)
+    AVGSCORES_PATH = f'{EVAL_OUTPUT_FOLDER}/eval_AVGSCORES.npz'
+    np.savez_compressed(AVGSCORES_PATH, avg_score=avg_score)
 
-    np.savez_compressed(f'{EVAL_OUTPUT_FOLDER}/eval_EVAL_RESULT.npz', **eval_result)
-    #with open(f'{EVAL_OUTPUT_FOLDER}/eval_EVAL_RESULT.pkl', 'wb') as f:
-    #    pickle.dump(eval_result, f)
+    EVAL_RESULT_PATH = f'{EVAL_OUTPUT_FOLDER}/eval_EVAL_RESULT.npz'
+    np.savez_compressed(EVAL_RESULT_PATH, **eval_result)
 
     bws = box_and_whisker_stats(avg_score)
-    np.savez_compressed(f"{EVAL_OUTPUT_FOLDER}/eval_BOX_AND_WHISKER_STATS.npz", bws=bws)
-    #with open(f"{EVAL_OUTPUT_FOLDER}/eval_BOX_AND_WHISKER_STATS", "wb") as f:
-    #    pickle.dump(bws, f)
+    BWS_PATH = f"{EVAL_OUTPUT_FOLDER}/eval_BOX_AND_WHISKER_STATS.npz"
+    np.savez_compressed(BWS_PATH, bws=bws)
 
     print ('avg score across all test agents: ', np.array(avg_score).mean())
-    return bws
+    return bws, EVAL_RESULT_PATH
     #return {f"{output_name}/{k}": v for k,v in stats.items()}
 
 def post_train_evaluate(checkpoint_path, dataset_name, dataset_details):
@@ -151,12 +149,13 @@ def post_train_evaluate(checkpoint_path, dataset_name, dataset_details):
         cfg.merge_from_list(["ENV.CORRUPTION_LEVEL", corruption_level])
         evaltask_name = f"eval_{dataset_name}_C{corruption_level}"
         start = time.time()
-        ret = evaluate_model(checkpoint_path, dataset_details.dataset_path, cfg.TERMINATE_ON_FALL, cfg.DETERMINISTIC, evaltask_name)
+        ret, eval_result_path = evaluate_model(checkpoint_path, dataset_details.dataset_path, cfg.TERMINATE_ON_FALL, cfg.DETERMINISTIC, evaltask_name)
         time_to_eval = time.time() - start
         print(time_to_eval)
         ret = {f"{evaltask_name}/{k}":v for k,v in ret.items()}
         ret[f"{evaltask_name}/time_to_eval"] = time_to_eval
         wandb.log(ret)
+        wandb.save(eval_result_path)
 
 if __name__ == '__main__':
 

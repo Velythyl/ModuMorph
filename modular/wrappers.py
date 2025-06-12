@@ -39,19 +39,35 @@ class ModularMatchUnimalObservationPadding(gym.ObservationWrapper):
         obs_padding_mask = [False] * num_limbs + [True] * (self.max_limbs - num_limbs) #self.num_limb_pads
         self.obs_padding_mask = np.asarray(obs_padding_mask)
 
-        act_padding_mask = [True] + [False] * (num_limbs - 1) + [True] * (24-num_limbs)
+        act_padding_mask = [True, True] + [False] * (num_limbs * 2 - 2) + [True] * (24-num_limbs * 2)
         assert len(act_padding_mask) == 24
         self.act_padding_mask = np.asarray(act_padding_mask)
 
     def observation(self, obs):
+        cur_num_limbs = self.metadata["num_limbs"]
+        obs_per_limb = obs.reshape(cur_num_limbs, -1)
+
+        def cast_obs_into_space(obs, space_name):
+            target_num_obs_per_limb = self.observation_space.spaces[space_name].shape[0] / cfg.MODEL.MAX_LIMBS
+            assert int(target_num_obs_per_limb) == target_num_obs_per_limb
+            target_num_obs_per_limb = int(target_num_obs_per_limb)
+
+            cur_num_obs_per_limb = obs_per_limb.shape[-1]
+            numpad_for_existing_limbs = target_num_obs_per_limb - cur_num_obs_per_limb
+
+            padded_obs_per_limb = np.concatenate([obs_per_limb, np.zeros((cur_num_limbs, numpad_for_existing_limbs))], axis=1)
+            padded_obs_per_limb = padded_obs_per_limb.reshape(cur_num_limbs * target_num_obs_per_limb)
+            numpad_for_nonexistent_limbs = self.observation_space.spaces[space_name].shape[0] - padded_obs_per_limb.shape[0]
+            padded_obs = np.concatenate([padded_obs_per_limb, np.zeros(numpad_for_nonexistent_limbs)], axis=0)
+            return padded_obs
 
         obs_dict = dict()
 
-        proprio_pad = self.observation_space['proprioceptive'].shape[0] - obs.size
-        context_pad = self.observation_space["context"].shape[0] - obs.size
+        #proprio_pad = self.observation_space['proprioceptive'].shape[0] - obs.size
+        #context_pad = self.observation_space["context"].shape[0] - obs.size
 
-        obs_dict["proprioceptive"] = np.concatenate([obs, [0] * proprio_pad]).ravel()
-        obs_dict["context"] = np.concatenate([obs, [0] * context_pad]).ravel()
+        obs_dict["proprioceptive"] = cast_obs_into_space(obs, "proprioceptive")  #np.concatenate([obs, [0] * proprio_pad]).ravel()
+        obs_dict["context"] = cast_obs_into_space(obs, "context")
         obs_dict["obs_padding_mask"] = self.obs_padding_mask
         obs_dict["act_padding_mask"] = self.act_padding_mask
         obs_dict["edges"] = np.zeros(self.max_joints * 2)
@@ -157,7 +173,9 @@ class ModularMatchUnimalActionPadding(gym.ActionWrapper):
         self.max_limbs = cfg.MODEL.MAX_LIMBS
         self.max_joints = cfg.MODEL.MAX_LIMBS
         self._update_action_space()
-        act_padding_mask = [True] + [False] * self.metadata["num_joints"] + [True] * (24-self.metadata["num_joints"]-1)
+        #act_padding_mask = [True] + [False] * self.metadata["num_joints"] + [True] * (24-self.metadata["num_joints"]-1)
+        num_limbs = self.metadata["num_limbs"]
+        act_padding_mask = [True, True] + [False] * (num_limbs * 2 - 2) + [True] * (24 - num_limbs * 2)
         self.act_padding_mask = np.asarray(act_padding_mask)
 
     def _update_action_space(self):
@@ -169,6 +187,8 @@ class ModularMatchUnimalActionPadding(gym.ActionWrapper):
 
     def action(self, action):
         new_action = action[~self.act_padding_mask]
+        new_action = new_action.reshape(2,-1)
+        new_action = new_action[0]
         return new_action
 
 class ModularActionPadding(gym.ActionWrapper):

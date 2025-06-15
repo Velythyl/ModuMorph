@@ -13,7 +13,7 @@ def main(cfg):
     cfg.postrun_eval_dir = cfg.postrun_eval_dir.strip()
     assert cfg.postrun_eval_dir != "" and cfg.postrun_eval_dir is not None and len(cfg.postrun_eval_dir) > 0
     assert os.path.exists(cfg.postrun_eval_dir)
-    assert os.path.exists(cfg.postrun_eval_dir + "/files/checkpoint_1200.pt")
+    assert os.path.exists(cfg.postrun_eval_dir + "/files/checkpoint_1200.pt") or os.path.exists(cfg.postrun_eval_dir + "/files/checkpoint_2400.pt")
 
     with open("./hydraconfig/script/eval.yaml", "r") as f:
         eval_config = OmegaConf.load(f)

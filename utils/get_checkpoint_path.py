@@ -22,4 +22,6 @@ def get_checkpoint_path(path, checkpoint_idx):
     else:
         checkpoint_path = os.path.join(path, f"trained_{checkpoint_idx}.pt")
 
+    print(f"Evaluating on checkpoint {checkpoint_path}")
+
     return checkpoint_path

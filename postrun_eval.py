@@ -54,6 +54,8 @@ if __name__ == "__main__":
             for run in _runs:
                 if load_saved_hydra_cfg(run).task.task_shorthand.strip() in ["ob", "obRot", "vt", "vtRot"]:
                     continue
+                if load_saved_hydra_cfg(run).vma.add_vma_latents:
+                    continue
                 runs.append(run)
 
             print("RUNS TO RUN\n\n\n")

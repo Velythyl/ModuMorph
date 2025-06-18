@@ -19,6 +19,8 @@ def filter_run(rundir):
     else:
         return False
 
+    if os.path.exists(rundir + "/files/checkpoint_1200.pt"):
+
     return True
 
 @hydra.main(version_base=None, config_path="hydraconfig", config_name="config")
@@ -67,9 +69,8 @@ if __name__ == "__main__":
 
             runs = []
             for run in _runs:
-                if not filter_run(run):
-                    continue
-                runs.append(run)
+                if filter_run(run):
+                    runs.append(run)
 
             print("RUNS TO RUN\n\n\n")
             print(",".join(runs))

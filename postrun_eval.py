@@ -19,7 +19,7 @@ def filter_run(rundir):
     else:
         return False
 
-    if os.path.exists(rundir + "/files/checkpoint_1200.pt"):
+    #if os.path.exists(rundir + "/files/checkpoint_1200.pt"):
 
     return True
 

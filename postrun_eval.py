@@ -6,6 +6,21 @@ import yaml
 from omegaconf import OmegaConf
 
 
+def filter_run(rundir):
+    hydracfg = load_saved_hydra_cfg(run)
+    if hydracfg.task.task_shorthand.strip() in ["ob", "obRot", "vt", "vtRot"]:
+        return False
+
+    if load_saved_hydra_cfg(run).vma.add_vma_latents:
+        return False
+
+    if os.path.exists(rundir + "/files/checkpoint_1200.pt") or os.path.exists(rundir + "/files/checkpoint_2400.pt"):
+        pass
+    else:
+        return False
+
+    return True
+
 @hydra.main(version_base=None, config_path="hydraconfig", config_name="config")
 def main(cfg):
     from main import actual_main
@@ -52,9 +67,7 @@ if __name__ == "__main__":
 
             runs = []
             for run in _runs:
-                if load_saved_hydra_cfg(run).task.task_shorthand.strip() in ["ob", "obRot", "vt", "vtRot"]:
-                    continue
-                if load_saved_hydra_cfg(run).vma.add_vma_latents:
+                if not filter_run(run):
                     continue
                 runs.append(run)
 

@@ -85,6 +85,7 @@ def evaluate_model(model_path, agent_path, terminate_on_fall=True, deterministic
     BWS_PATH = f"{EVAL_OUTPUT_FOLDER}/eval_BOX_AND_WHISKER_STATS.npz"
     EVAL_RESULT_PATH = f'{EVAL_OUTPUT_FOLDER}/eval_EVAL_RESULT.npz'
     if os.path.exists(BWS_PATH):
+        # checkpointing...
         bws = np.load(BWS_PATH, allow_pickle=True)["bws"].item()
         return bws, EVAL_RESULT_PATH
 

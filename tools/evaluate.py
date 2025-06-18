@@ -80,12 +80,21 @@ def evaluate_model(model_path, agent_path, terminate_on_fall=True, deterministic
     deterministic: whether take a deterministic action (mean of the Gaussian action distribution) or a random action
     '''
 
+    policy_folder = "/".join(model_path.split('/')[:-1])
+    EVAL_OUTPUT_FOLDER = f"{policy_folder}/eval/{evaltask_name}".replace(".0", "-0")
+    BWS_PATH = f"{EVAL_OUTPUT_FOLDER}/eval_BOX_AND_WHISKER_STATS.npz"
+    EVAL_RESULT_PATH = f'{EVAL_OUTPUT_FOLDER}/eval_EVAL_RESULT.npz'
+    if os.path.exists(BWS_PATH):
+        bws = np.load(BWS_PATH, allow_pickle=True)["bws"].item()
+        return bws, EVAL_RESULT_PATH
+
+
+
     assert evaltask_name is not None
 
     test_agents = list(set([x.split('.')[0] for x in os.listdir(f'{agent_path}/xml') if x.endswith('.xml')]))
 
     ENV_NAME = cfg.ENV_NAME
-    policy_folder = "/".join(model_path.split('/')[:-1])
     print (policy_folder)
     cfg.merge_from_file(f'{policy_folder}/yacs_config.yaml')
     cfg.ENV_NAME = ENV_NAME
@@ -102,8 +111,6 @@ def evaluate_model(model_path, agent_path, terminate_on_fall=True, deterministic
     policy = ppo_trainer.agent
     # change to eval mode as we may have dropout in the model
     policy.ac.eval()
-
-    EVAL_OUTPUT_FOLDER = f"{policy_folder}/eval/{evaltask_name}".replace(".0", "-0")
     os.makedirs(EVAL_OUTPUT_FOLDER, exist_ok=True)
 
     # avg_score stores the per-agent average evaluation return
@@ -121,11 +128,9 @@ def evaluate_model(model_path, agent_path, terminate_on_fall=True, deterministic
     AVGSCORES_PATH = f'{EVAL_OUTPUT_FOLDER}/eval_AVGSCORES.npz'
     np.savez_compressed(AVGSCORES_PATH, avg_score=avg_score)
 
-    EVAL_RESULT_PATH = f'{EVAL_OUTPUT_FOLDER}/eval_EVAL_RESULT.npz'
     np.savez_compressed(EVAL_RESULT_PATH, **eval_result)
 
     bws = box_and_whisker_stats(avg_score)
-    BWS_PATH = f"{EVAL_OUTPUT_FOLDER}/eval_BOX_AND_WHISKER_STATS.npz"
     np.savez_compressed(BWS_PATH, bws=bws)
 
     print ('avg score across all test agents: ', np.array(avg_score).mean())

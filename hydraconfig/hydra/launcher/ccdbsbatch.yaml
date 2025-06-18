@@ -1,0 +1,46 @@
+# @package hydra.launcher
+account: rrg-lpaull
+# partition: long
+_target_: hydra_plugins.hydra_submitit_launcher.submitit_launcher.SlurmLauncher # hydra_plugins.packed_launcher.packedlauncher.SlurmLauncher
+cpus_per_task: 6
+mem_gb: 32
+tasks_per_node: 1
+stderr_to_stdout: False
+#gres: gpu:l40s:1 #gpu:32gb:1 # gpu:rtx8000:1 # No MIG: gpu:32gb:1
+gpus_per_node: a100:1
+submitit_folder: ${hydra.sweep.dir}/submitit/%j
+#timeout_min: 1440 # 2 days: 2880 ; 12h : 720 ; 1 day: 1440
+nodes: 1
+name: ${hydra.job.name}
+array_parallelism: 10 # max num of tasks to run in parallel (via job array)
+setup:
+  - "export WANDB_DIR=${hydra.sweep.dir}"
+  - "export HYDRA_SWEEP_DIR=${hydra.sweep.dir}"
+  - "export BREAK=False"
+  - "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/cgauthie/projects/def-lpaull/cgauthie/ModuMorph/mujoco/mujoco200/bin"
+  - 'export WANDB_API_KEY="${secrets.wandb_key}"'
+  - 'export TQDM_DISABLE=1'
+  - "module load python/3.10"
+  - "module load cuda/12.6"
+  - "module load cudnn/9.5.1.17"
+  #- "module load libffi"
+  #- "ulimit -n 16384"
+  - "source $HOME/ModuMorph/venv/bin/activate"
+  - "sleep $((RANDOM % 100))"
+
+# module load cuda/12.1.1/cudnn
+# module load python/3.10
+#  python3.9 -m pip install --upgrade "jaxlib==0.4.13+cuda11.cudnn86" "jax[cuda11_pip]==0.4.13" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html --no-cache
+# pip3 install -r requirements.txt
+# pip3 install flax==0.7.4
+#  python3.9 -m pip install --upgrade "jaxlib[cuda11_pip]==0.4.13" "jax[cuda11_pip]==0.4.13" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html --no-cache
+# pip install hydra-submitit-launcher --upgrade
+# python3 main.py --multirun hydra/launcher=sbatch +hydra/sweep=sbatch wandb.seed=1,2
+# python3 main.py --multirun hydra/launcher=sbatch +hydra/sweep=sbatch sim=sim10k_10000 wandb.seed=1,2,3,4,5 sim.bad_init=False,True dist=four_bananas,rastrigin10d,rastrigin2d,michalewicz10d,michalewicz2d,five_mvn_dim10,rosenbrock10d,rosenbrock2d adapt=indep,mape_single,mape_test,haario,random_walk,mala wandb.project=milaclustermbrma
+
+
+#   - 'export WANDB_WATCH="false"'
+#  - 'export WANDB__SERVICE_WAIT=300'
+ # - 'export WANDB_MODE="offline"'
+#
+

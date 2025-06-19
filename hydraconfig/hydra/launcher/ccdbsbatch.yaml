@@ -17,7 +17,7 @@ setup:
   - "export WANDB_DIR=${hydra.sweep.dir}"
   - "export HYDRA_SWEEP_DIR=${hydra.sweep.dir}"
   - "export BREAK=False"
-  - "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/cgauthie/projects/def-lpaull/cgauthie/ModuMorph/mujoco/mujoco200/bin"
+  - "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/cgauthie/.mujoco/mujoco200/bin"
   - 'export WANDB_MODE="offline"'
   - 'export WANDB_API_KEY="${secrets.wandb_key}"'
   - "export WANDB_INIT_TIMEOUT=600"

@@ -130,7 +130,7 @@ class Agent:
         self.limb_btm_sites = [
             site for site in env.metadata["agent_sites"] if "limb/btm" in site
         ]
-        self.edges, self.traversals, self.SWAT_RE = self._get_edges(sim)
+        self.edges, self.traversals, self.SWAT_RE, self.adjmat = self._get_edges(sim)
         env.metadata["num_limbs"] = len(self.agent_body_idxs)
         env.metadata["num_joints"] = len(sim.model.joint_names) - 1
         # Useful for attention map analysis
@@ -142,6 +142,7 @@ class Agent:
             env.metadata["edge_name"]
         )
         env.metadata["joint_mask_for_node_graph"] = self.joint_mask_for_node_graph
+        env.metadata["vmaadjmat"] = self.adjmat
 
         self.context_limb, self.context_joint = self.get_context(sim)
 
@@ -192,7 +193,7 @@ class Agent:
         else:
             relational_features = np.zeros([cfg.MODEL.MAX_LIMBS, cfg.MODEL.MAX_LIMBS, 3])
 
-        return np.vstack((joint_to, joint_from)).T.flatten(), traversals, relational_features
+        return np.vstack((joint_to, joint_from)).T.flatten(), traversals, relational_features, swat.getAdjacency(parents)
 
     def get_context(self, sim):
         context_limb = {}

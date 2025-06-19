@@ -382,6 +382,7 @@ _C.MODEL.VMA.CHECK_PATH = "resnet_new_decoder-L16-WTrue"
 _C.MODEL.VMA.LATENT_DIR = "./vma_latent_dir"
 _C.MODEL.VMA.vma_to_proprioceptive = False
 _C.MODEL.VMA.vma_to_context = False
+_C.MODEL.VMA.ajdvec_instead = False
 
 # Model specific observation types to keep
 _C.MODEL.OBS_TYPES = [

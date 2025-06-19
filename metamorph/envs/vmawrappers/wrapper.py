@@ -105,3 +105,66 @@ class VMAObsWrapper(gym.Wrapper):
             return self.add_vma_obs_to_obs(obs), *ret[1:]
         else:
             return self.add_vma_obs_to_obs(ret)
+
+
+class AdjVecObsWrapper(gym.Wrapper):
+    def __init__(self, env, vma_to_proprioceptive, vma_to_context):
+        super(AdjVecObsWrapper, self).__init__(env)
+
+        self.unshape_first_size = self.observation_space["obs_padding_mask"].shape[0]
+        self.latent_matrix_size = self.unshape_first_size * self.unshape_first_size
+
+        self.vma_to_proprioceptive = vma_to_proprioceptive
+        self.vma_to_context = vma_to_context
+
+        delta_obs = {}
+        if self.vma_to_proprioceptive:
+            delta_obs["proprioceptive"] = (
+            self.observation_space.spaces["proprioceptive"].shape[0] + self.latent_matrix_size,)
+        if self.vma_to_context:
+            delta_obs["context"] = (self.observation_space.spaces["context"].shape[0] + self.latent_matrix_size,)
+
+        if len(delta_obs) > 0:
+            self.observation_space = spu.update_obs_space(env, delta_obs)
+
+    def add_vma_obs_to_obs(self, obs):
+        if (not self.vma_to_proprioceptive) and (not self.vma_to_context):
+            return obs
+
+        vma_obs = self.metadata["vmaadjmat"].cpu().numpy().clone()
+        missing_cols = np.zeros((vma_obs.shape[0], self.unshape_first_size - vma_obs.shape[0]))
+        vma_obs = np.concatenate((vma_obs, missing_cols), axis=1)
+
+        vma_obs = np.concatenate(
+            (vma_obs,
+             np.zeros((self.unshape_first_size - len(vma_obs), vma_obs.shape[1])))
+            , axis=0)
+        #for _ in range(self.unshape_first_size - len(vma_obs)):
+        #    vma_obs.append(np.zeros_like(vma_obs[0]))
+        #vma_obs = np.vstack(vma_obs)
+
+        def add_vma_obs_to_target(vma_obs, target):
+            target = target.reshape(self.unshape_first_size, -1)
+            target = np.concatenate((target, vma_obs), axis=1)
+            return target.reshape(self.unshape_first_size * np.prod(target[0].shape))
+
+        obs = copy.deepcopy(obs)
+        if self.vma_to_proprioceptive:
+            obs["proprioceptive"] = add_vma_obs_to_target(vma_obs, obs["proprioceptive"])
+        if self.vma_to_context:
+            obs["context"] = add_vma_obs_to_target(vma_obs, obs["context"])
+        return obs
+
+    def step(self, action):
+        ret = super(VMAObsWrapper, self).step(action)
+        obs = ret[0]
+        return self.add_vma_obs_to_obs(obs), *ret[1:]
+
+    def reset(self, **kwargs):
+        ret = self.env.reset(**kwargs)
+        if isinstance(ret, tuple):
+            obs = ret[0]
+            return self.add_vma_obs_to_obs(obs), *ret[1:]
+        else:
+            return self.add_vma_obs_to_obs(ret)
+

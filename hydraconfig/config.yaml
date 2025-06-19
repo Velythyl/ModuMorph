@@ -6,7 +6,7 @@ defaults:
   - model: metamorph
   - script: train
   - task: ft
-  - vma: gt_and_adjvec
+  - vma: gt
   - secrets: secrets
 
 other_yacs_args: ""# DEVICE cpu"

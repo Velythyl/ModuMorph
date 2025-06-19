@@ -26,7 +26,7 @@ setup:
   - "module load cudnn/9.5.1.17"
   #- "module load libffi"
   #- "ulimit -n 16384"
-  - "source $HOME/ModuMorph/venv/bin/activate"
+  - "source /home/cgauthie/projects/def-lpaull/cgauthie/ModuMorph/venv/bin/activate"
   - "sleep $((RANDOM % 100))"
 
 # module load cuda/12.1.1/cudnn

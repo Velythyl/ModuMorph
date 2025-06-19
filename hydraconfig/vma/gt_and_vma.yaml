@@ -1,5 +1,6 @@
 add_gt_bodies: True
 add_vma_latents: True
 vma_check_path: null
+add_adjvec: False
 
 yacs_arg: MODEL.PROPRIOCEPTIVE_OBS_TYPES "['body_xpos', 'body_xvelp', 'body_xvelr', 'body_xquat', 'body_pos', 'body_ipos', 'body_iquat', 'geom_quat', 'body_mass', 'body_shape', 'qpos', 'qvel', 'jnt_pos', 'joint_range', 'joint_axis', 'gear']" MODEL.CONTEXT_OBS_TYPES "['body_pos', 'body_ipos', 'body_iquat', 'geom_quat', 'body_mass', 'body_shape', 'jnt_pos', 'joint_range', 'joint_axis', 'gear']" MODEL.VMA.CHECK_PATH resnet_new_decoder-L16-WTrue MODEL.VMA.LATENT_DIR "./vma_latent_dir" MODEL.VMA.vma_to_proprioceptive True MODEL.VMA.vma_to_context True

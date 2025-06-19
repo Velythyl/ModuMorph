@@ -12,10 +12,7 @@ def sync_run(path, wandb_key):
     try:
         result = subprocess.run(
             ["wandb", "sync", "--include-offline", path],
-            env=env,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True
+            env=env
         )
         if result.returncode != 0:
             print(f"[FAIL] Sync failed for {path}:\n{result.stderr}")

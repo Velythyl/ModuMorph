@@ -5,17 +5,23 @@ import os
 import subprocess
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import sys
+import subprocess
 
 def sync_run(path, wandb_key):
     env = os.environ.copy()
     env["WANDB_API_KEY"] = wandb_key
     try:
-        result = subprocess.run(
+        print(f"[START] Syncing {path}")
+        proc = subprocess.Popen(
             ["wandb", "sync", "--include-offline", path],
-            env=env
+            env=env,
+            stdout=sys.stdout,
+            stderr=sys.stderr
         )
-        if result.returncode != 0:
-            print(f"[FAIL] Sync failed for {path}:\n{result.stderr}")
+        proc.wait()
+        if proc.returncode != 0:
+            print(f"[FAIL] Sync failed for {path}")
             return False
         else:
             print(f"[OK] Synced {path}")
@@ -23,6 +29,7 @@ def sync_run(path, wandb_key):
     except Exception as e:
         print(f"[EXCEPTION] {path}: {e}")
         return False
+
 
 def main():
     parser = argparse.ArgumentParser(description="Sync wandb offline runs in parallel.")

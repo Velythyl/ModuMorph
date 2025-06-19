@@ -38,6 +38,9 @@ def main():
     with open(args.wandb_key_path.strip(), "r") as f:
         wandb_key = f.read().strip()
 
+    if not args.root.endswith("wandb"):
+        args.root = f"{args.root}/wandb"
+
     # Find offline runs
     run_paths = sorted([
         os.path.join(args.root, d) for d in os.listdir(args.root)

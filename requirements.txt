@@ -12,3 +12,4 @@ hydra-core
 wandb
 matplotlib
 hydra-submitit-launcher
+tqdm

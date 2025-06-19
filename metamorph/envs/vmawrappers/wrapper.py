@@ -131,7 +131,7 @@ class AdjVecObsWrapper(gym.Wrapper):
         if (not self.vma_to_proprioceptive) and (not self.vma_to_context):
             return obs
 
-        vma_obs = self.metadata["vmaadjmat"].cpu().numpy().clone()
+        vma_obs = self.metadata["vmaadjmat"].cpu().numpy().copy()
         missing_cols = np.zeros((vma_obs.shape[0], self.unshape_first_size - vma_obs.shape[0]))
         vma_obs = np.concatenate((vma_obs, missing_cols), axis=1)
 
@@ -156,7 +156,7 @@ class AdjVecObsWrapper(gym.Wrapper):
         return obs
 
     def step(self, action):
-        ret = super(VMAObsWrapper, self).step(action)
+        ret = super(AdjVecObsWrapper, self).step(action)
         obs = ret[0]
         return self.add_vma_obs_to_obs(obs), *ret[1:]
 

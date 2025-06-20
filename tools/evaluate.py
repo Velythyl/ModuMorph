@@ -70,7 +70,7 @@ def evaluate_agent(policy, trainer_envs, agent, EVAL_OUTPUT_FOLDER):
     return episode_return
 
 
-def evaluate_model(model_path, agent_path, terminate_on_fall=True, deterministic=False, evaltask_name=None):
+def evaluate_model(model_path, agent_path, terminate_on_fall=True, deterministic=False, evaltask_name=None, del_previous_evals=False):
     '''
     model_path: the path of the .pt model file to evaluate
     agent_path: the path of the test agents
@@ -84,10 +84,16 @@ def evaluate_model(model_path, agent_path, terminate_on_fall=True, deterministic
     EVAL_OUTPUT_FOLDER = f"{policy_folder}/eval/{evaltask_name}".replace(".0", "-0")
     BWS_PATH = f"{EVAL_OUTPUT_FOLDER}/eval_BOX_AND_WHISKER_STATS.npz"
     EVAL_RESULT_PATH = f'{EVAL_OUTPUT_FOLDER}/eval_EVAL_RESULT.npz'
+    AVGSCORES_PATH = f'{EVAL_OUTPUT_FOLDER}/eval_AVGSCORES.npz'
     if os.path.exists(BWS_PATH):
-        # checkpointing...
-        bws = np.load(BWS_PATH, allow_pickle=True)["bws"].item()
-        return bws, EVAL_RESULT_PATH, True
+        if del_previous_evals:
+            os.remove(BWS_PATH)
+            os.remove(EVAL_RESULT_PATH)
+            os.remove(AVGSCORES_PATH)
+        else:
+            # checkpointing...
+            bws = np.load(BWS_PATH, allow_pickle=True)["bws"].item()
+            return bws, EVAL_RESULT_PATH, True
 
 
 
@@ -126,7 +132,6 @@ def evaluate_model(model_path, agent_path, terminate_on_fall=True, deterministic
 
     print(f"Avg score for {evaltask_name}: {avg_score.mean()}")
 
-    AVGSCORES_PATH = f'{EVAL_OUTPUT_FOLDER}/eval_AVGSCORES.npz'
     np.savez_compressed(AVGSCORES_PATH, avg_score=avg_score)
 
     np.savez_compressed(EVAL_RESULT_PATH, **eval_result)
@@ -138,7 +143,7 @@ def evaluate_model(model_path, agent_path, terminate_on_fall=True, deterministic
     return bws, EVAL_RESULT_PATH, False
     #return {f"{output_name}/{k}": v for k,v in stats.items()}
 
-def post_train_evaluate(checkpoint_path, dataset_name, dataset_details):
+def post_train_evaluate(checkpoint_path, dataset_name, dataset_details, del_previous_evals):
     #if "unimal" in agent_type.lower():
     #    cfg.ENV_NAME = "Unimal-v0"
     #elif "modular" in agent_type.lower():
@@ -156,7 +161,7 @@ def post_train_evaluate(checkpoint_path, dataset_name, dataset_details):
         cfg.merge_from_list(["ENV.CORRUPTION_LEVEL", corruption_level])
         evaltask_name = f"eval_{dataset_name}_C{corruption_level}"
         start = time.time()
-        ret, eval_result_path, WAS_ALREADY_DONE = evaluate_model(checkpoint_path, dataset_details.dataset_path, cfg.TERMINATE_ON_FALL, cfg.DETERMINISTIC, evaltask_name)
+        ret, eval_result_path, WAS_ALREADY_DONE = evaluate_model(checkpoint_path, dataset_details.dataset_path, cfg.TERMINATE_ON_FALL, cfg.DETERMINISTIC, evaltask_name, del_previous_evals)
         time_to_eval = time.time() - start
         print(time_to_eval)
         ret = {f"{evaltask_name}/{k}":v for k,v in ret.items()}

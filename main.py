@@ -60,7 +60,7 @@ def eval(hydra_cfg):
             if details.disabled:
                 continue
 
-            WAS_ALREADY_DONE = post_train_evaluate(path_of_latest_checkpoint, datasetname, details)
+            WAS_ALREADY_DONE = post_train_evaluate(path_of_latest_checkpoint, datasetname, details, del_previous_evals=hydra_cfg.postrun_eval_del_previous_evals)
             WAS_ALREADY_DONES.append(WAS_ALREADY_DONE)
     except Exception as e:
         print("Exception during evaluation:", e)

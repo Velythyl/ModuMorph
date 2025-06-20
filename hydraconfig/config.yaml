@@ -3,11 +3,12 @@ defaults:
   - meta: meta
   - dataset: unimals_train
   - eval: paths
-  - model: metamorph
-  - script: train
-  - task: ft
-  - vma: gt
+  - model: sr_mlp
+  - script: sr_train
+  - task: ft_rot
+  - vma: sr_truly_nothing
   - secrets: secrets
 
 other_yacs_args: ""# DEVICE cpu"
 postrun_eval_dir: "./savedruns" # only used by postrun_eval, ignore otherwise
+postrun_eval_del_previous_evals: True

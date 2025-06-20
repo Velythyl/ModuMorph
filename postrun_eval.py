@@ -50,6 +50,8 @@ def main(cfg):
     if hydra_cfg_from_saved_run.task.task_shorthand.strip() in ["ob", "obRot", "vt", "vtRot"]:
         exit()
 
+    hydra_cfg_from_saved_run.postrun_eval_del_previous_evals = cfg.postrun_eval_del_previous_evals
+
 
     return actual_main(hydra_cfg_from_saved_run)
 

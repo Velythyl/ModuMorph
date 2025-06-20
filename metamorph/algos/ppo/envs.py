@@ -81,7 +81,7 @@ def make_vec_envs(
         if xml_file is None or len(cfg.ENV.WALKERS) == 1:
             xml_file = cfg.ENV.WALKERS[0]
         envs = [
-            make_env(cfg.ENV_NAME, seed, idx, xml_file=xml_file, corruption_level=cfg.ENV.CORRUPTION_LEVEL)
+            make_env(cfg.ENV_NAME, seed, idx, xml_file=xml_file, corruption_level=cfg.ENV.CORRUPTION_LEVEL, random_initial_rotations=cfg.ENV.RANDOM_INITIAL_ROTATIONS)
             for idx in range(num_env)
         ]
     else:

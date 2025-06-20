@@ -1,0 +1,2 @@
+script: ["sr_train"]
+path_to_eval: null

@@ -52,6 +52,7 @@ def eval(hydra_cfg):
     path_of_hydra_config = "/".join(path_of_latest_checkpoint.split("/")[:-1]) + "/hydra_config.yaml"
     wandb.save(path_of_hydra_config)
 
+    WAS_ALREADY_DONES = []
     try:
         print("Now evaluating (this will take a while)")
         from tools.evaluate import post_train_evaluate
@@ -59,13 +60,18 @@ def eval(hydra_cfg):
             if details.disabled:
                 continue
 
-            post_train_evaluate(path_of_latest_checkpoint, datasetname, details)
+            WAS_ALREADY_DONE = post_train_evaluate(path_of_latest_checkpoint, datasetname, details)
+            WAS_ALREADY_DONES.append(WAS_ALREADY_DONE)
     except Exception as e:
         print("Exception during evaluation:", e)
         print(traceback.format_exc())
         print("Evaluating failed. Are all the xml files present?")
         raise e
         #os.kill(os.getpid(), signal.SIGKILL)
+
+    if sum(WAS_ALREADY_DONES) == len(WAS_ALREADY_DONES):
+        print("Somehow, all these evaluations were already complete. Marking this run as crashed; it's safe to ignore it.")
+        os._exit(-1)
 
 def eval_newjob(hydra_cfg):
     import yaml
@@ -121,6 +127,31 @@ def eval_newjob(hydra_cfg):
     run_subproc(cmd, shell=True, timeout=60)
     time.sleep(5)
 
+def sr_train(hydra_cfg):
+
+    def mk_tmp_walker_dir(source_folder, agent):
+        import tempfile
+        target_folder = tempfile.mkdtemp()
+        os.mkdir(f'{target_folder}/{agent}')
+        os.mkdir(f'{target_folder}/{agent}/xml')
+        os.mkdir(f'{target_folder}/{agent}/metadata')
+        shutil.copyfile(f"{source_folder}/xml/{agent}.xml", f'{target_folder}/{agent}/xml/{agent}.xml')
+        shutil.copyfile(f"{source_folder}/metadata/{agent}.json", f'{target_folder}/{agent}/metadata/{agent}.json')
+        #os.system(f'cp {source_folder}/xml/{agent}.xml {target_folder}/{agent}/xml/')
+        #os.system(f'cp {source_folder}/metadata/{agent}.json {target_folder}/{agent}/metadata/')
+        return target_folder
+
+    unimal_folder = './unimals_100/train'
+
+    agent_names = list(sorted(list(set([x.split('.')[0].replace("-parsed", "") for x in os.listdir(f"{unimal_folder}/xml")]))))
+    agent_to_train = agent_names[hydra_cfg.model.robot_id]
+
+    target_folder = mk_tmp_walker_dir(unimal_folder, agent_to_train)
+
+    sys.argv = sys.argv + shlex.split(f"ENV.WALKER_DIR {target_folder}/{agent_to_train}")
+    return train(hydra_cfg)
+
+
 def actual_main(cfg):
     cfg.meta.sys_argv = sys.argv
 
@@ -149,7 +180,8 @@ def actual_main(cfg):
     options = {
         "train": train,
         "eval": eval,
-        "eval_newjob": eval_newjob
+        "eval_newjob": eval_newjob,
+        "sr_train": sr_train,
     }
 
     DEBUG = False
@@ -194,6 +226,10 @@ if __name__ == "__main__":
 """
 
 python3 main.py --multirun hydra/launcher=sbatch +hydra/sweep=sbatch +hydra.launcher.timeout_min=4300  hydra.launcher.gres=gpu:rtx8000:1 hydra.launcher.cpus_per_task=8 hydra.launcher.mem_gb=32 hydra.launcher.array_parallelism=60 hydra.launcher.partition=long meta.project=vmaBATCH2 meta.run_name=main meta.seed=-1,-1,-1,-1,-1 vma=gt,gt_and_vma,nothing,vma_only task=incline,exploration,ft model=modumorph
+
+SR
+
+
 
 
 CCDB (need to tune time)

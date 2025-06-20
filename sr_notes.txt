@@ -1,0 +1,4 @@
+MLP, 3 hidden, 256 each
+
+10M for ft,in,ex
+20M for vt, ob -> this is new, makes it more fair because we train modumorph for 200M here

@@ -87,7 +87,7 @@ def evaluate_model(model_path, agent_path, terminate_on_fall=True, deterministic
     if os.path.exists(BWS_PATH):
         # checkpointing...
         bws = np.load(BWS_PATH, allow_pickle=True)["bws"].item()
-        return bws, EVAL_RESULT_PATH
+        return bws, EVAL_RESULT_PATH, True
 
 
 
@@ -135,7 +135,7 @@ def evaluate_model(model_path, agent_path, terminate_on_fall=True, deterministic
     np.savez_compressed(BWS_PATH, bws=bws)
 
     print ('avg score across all test agents: ', np.array(avg_score).mean())
-    return bws, EVAL_RESULT_PATH
+    return bws, EVAL_RESULT_PATH, False
     #return {f"{output_name}/{k}": v for k,v in stats.items()}
 
 def post_train_evaluate(checkpoint_path, dataset_name, dataset_details):
@@ -150,18 +150,22 @@ def post_train_evaluate(checkpoint_path, dataset_name, dataset_details):
     if not checkpoint_path.endswith('.pt'):
         checkpoint_path = get_checkpoint_path(checkpoint_path, -1)
 
+    WAS_ALREADY_DONES = []
     for corruption_level in dataset_details.corruption_levels:
         print(f"Evaluating <{dataset_name}> with corruption level <{corruption_level}>")
         cfg.merge_from_list(["ENV.CORRUPTION_LEVEL", corruption_level])
         evaltask_name = f"eval_{dataset_name}_C{corruption_level}"
         start = time.time()
-        ret, eval_result_path = evaluate_model(checkpoint_path, dataset_details.dataset_path, cfg.TERMINATE_ON_FALL, cfg.DETERMINISTIC, evaltask_name)
+        ret, eval_result_path, WAS_ALREADY_DONE = evaluate_model(checkpoint_path, dataset_details.dataset_path, cfg.TERMINATE_ON_FALL, cfg.DETERMINISTIC, evaltask_name)
         time_to_eval = time.time() - start
         print(time_to_eval)
         ret = {f"{evaltask_name}/{k}":v for k,v in ret.items()}
         ret[f"{evaltask_name}/time_to_eval"] = time_to_eval
         wandb.log(ret)
         wandb.save(eval_result_path)
+        WAS_ALREADY_DONES.append(WAS_ALREADY_DONE)
+    return sum(WAS_ALREADY_DONES) == len(WAS_ALREADY_DONES)
+
 
 if __name__ == '__main__':
 

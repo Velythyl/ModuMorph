@@ -11,4 +11,4 @@ defaults:
 
 other_yacs_args: ""# DEVICE cpu"
 postrun_eval_dir: "./savedruns" # only used by postrun_eval, ignore otherwise
-postrun_eval_del_previous_evals: True
+postrun_eval_del_previous_evals: False

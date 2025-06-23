@@ -227,8 +227,13 @@ if __name__ == "__main__":
 
 python3 main.py --multirun hydra/launcher=sbatch +hydra/sweep=sbatch +hydra.launcher.timeout_min=4300  hydra.launcher.gres=gpu:rtx8000:1 hydra.launcher.cpus_per_task=8 hydra.launcher.mem_gb=32 hydra.launcher.array_parallelism=60 hydra.launcher.partition=long meta.project=vmaBATCH2 meta.run_name=main meta.seed=-1,-1,-1,-1,-1 vma=gt,gt_and_vma,nothing,vma_only task=incline,exploration,ft model=modumorph
 
-SR
+SR FT, IN, EX
 
+python3 main.py --multirun hydra/launcher=sbatch +hydra/sweep=sbatch hydra.launcher._target_=hydra_plugins.packed_launcher.packedlauncher.SlurmLauncher hydra.launcher.tasks_per_node=4 +hydra.launcher.timeout_min=600  hydra.launcher.gres=gpu:rtx8000:1 hydra.launcher.cpus_per_task=2 hydra.launcher.mem_gb=32 hydra.launcher.array_parallelism=100 hydra.launcher.partition=long meta.project=vmaBATCH2 meta.run_name=main   meta.seed=-1 vma=gt,sr_truly_nothing task=ft,incline,exploration secrets=secrets_cluster model=sr_mlp_10M model.robot_id=range\(0,100\)
+
+SR OB, VT
+
+python3 main.py --multirun hydra/launcher=sbatch +hydra/sweep=sbatch hydra.launcher._target_=hydra_plugins.packed_launcher.packedlauncher.SlurmLauncher hydra.launcher.tasks_per_node=4 +hydra.launcher.timeout_min=1000  hydra.launcher.gres=gpu:rtx8000:1 hydra.launcher.cpus_per_task=2 hydra.launcher.mem_gb=32 hydra.launcher.array_parallelism=50 hydra.launcher.partition=long meta.project=vmaBATCH2 meta.run_name=main   meta.seed=-1 vma=gt,sr_truly_nothing task=ob_2000M,vt_200M secrets=secrets_cluster model=sr_mlp_20M model.robot_id=range\(0,100\)
 
 
 

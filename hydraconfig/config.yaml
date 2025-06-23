@@ -3,10 +3,10 @@ defaults:
   - meta: meta
   - dataset: unimals_train
   - eval: paths
-  - model: sr_mlp
-  - script: sr_train
+  - model: modumorph
+  - script: train
   - task: ft_rot
-  - vma: sr_truly_nothing
+  - vma: gt
   - secrets: secrets
 
 other_yacs_args: ""# DEVICE cpu"

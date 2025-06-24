@@ -46,6 +46,8 @@ class VMAObsWrapper(gym.Wrapper):
         assert(os.path.exists(vma_cache_dir))
         self.vma = VMA(None, vma_cache_dir, _set_vma_check_path=_set_vma_check_path)
 
+        print(f"VMA latent dir is: {self.vma.latentdir}")
+
         self.latent_size = self.vma.get_meta()["latent_size"]
         self.unshape_first_size = self.observation_space["obs_padding_mask"].shape[0]
         self.latent_matrix_size = self.latent_size * self.unshape_first_size

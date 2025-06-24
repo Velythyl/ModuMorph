@@ -1,6 +1,7 @@
 import os
 import shutil
 
+import hydra
 import yaml
 from omegaconf import OmegaConf
 
@@ -101,7 +102,7 @@ class VMA:
         jsonpath = Path("/") / rel_path.with_suffix(".json")
         return jsonpath
 
-    #@lru_cache(maxsize=8192)
+    @lru_cache(maxsize=8192)
     def get_latents_for_robot(self, robot_path):
         latentpath = self.to_latent_path(robot_path)
 
@@ -142,7 +143,7 @@ class VMA:
                 json_path = os.path.join(root, file)
                 if json_path.endswith(".json") and "/metadata/" not in json_path:
                     json_paths.append(json_path)
-        json_paths = json_paths[:40]
+        #json_paths = json_paths[:40]
 
         CHUNKSIZE = 30
         json_paths = [json_paths[i:i + CHUNKSIZE] for i in range(0, len(json_paths), CHUNKSIZE)]
@@ -265,9 +266,15 @@ def get_normalization_func(name, vals=None):
 
     return functools.partial(func, vals)
 
+def main(saved_vma, latentdir, inference_device, dataset_path):
+    vma = VMA(saved_vma, latentdir, inference_device=inference_device)
+    vma.write_latents(dataset_path)
+
 if __name__ == "__main__":
-    vma = VMA("./saved_runs/upsample_resnet/WTrue_L32", "./latentdir", inference_device="cpu")
-    vma.write_latents("/home/charlie/Desktop/MJCFConvert/mjcf2o3d/unimals_100/")
+    main("/home/mila/c/charlie.gauthier/voxvae/voxvae/saved_runs/resnet_new_decoder/WTrue_L16", "./latentdir", inference_device="cpu", dataset_path="/network/scratch/c/charlie.gauthier/unimals_100")
+
+    #vma = VMA("./saved_runs/upsample_resnet/WTrue_L32", "./latentdir", inference_device="cpu")
+    #vma.write_latents("/home/charlie/Desktop/MJCFConvert/mjcf2o3d/unimals_100/")
     #vma = VMA(None, "./latentdir", _set_vma_check_path="resnet_upsample-L32-WTrue")
     #x = vma.get_latents_for_robot("floor-1409-0-12-01-12-30-07_perturb_density_9.xml")
     #y = vma.get_latent_for_robotcomponent("floor-5506-10-6-01-15-48-35_damping_3-latent.json", "limby/6")

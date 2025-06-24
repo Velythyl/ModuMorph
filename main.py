@@ -240,5 +240,9 @@ python3 main.py --multirun hydra/launcher=sbatch +hydra/sweep=sbatch hydra.launc
 
 CCDB (need to tune time)
 
+python3 main.py --multirun hydra/launcher=ccdbsbatch +hydra/sweep=sbatch hydra.launcher._target_=hydra_plugins.packed_launcher.packedlauncher.SlurmLauncher hydra.launcher.tasks_per_node=2 +hydra.launcher.timeout_min=4300  hydra.launcher.gres=gpu:a100:1 hydra.launcher.cpus_per_task=3 hydra.launcher.mem_gb=32 hydra.launcher.array_parallelism=60  meta.project=ccdbvmaBATCH2 meta.run_name=main meta.wandb_mode=offline meta.seed=-1 vma=vma_only,gt_and_vma task=ft model=modumorph meta.signal_noop=True
+
+
+
 python3 main.py --multirun hydra/launcher=ccdbsbatch +hydra/sweep=sbatch hydra.launcher._target_=hydra_plugins.packed_launcher.packedlauncher.SlurmLauncher hydra.launcher.tasks_per_node=2 +hydra.launcher.timeout_min=4300  hydra.launcher.gres=gpu:a100:1 hydra.launcher.cpus_per_task=2 hydra.launcher.mem_gb=20 hydra.launcher.array_parallelism=60  meta.project=ccdbvmaBATCH2 meta.run_name=main meta.wandb_mode=offline meta.seed=-1,-1 vma=gt task=ft model=modumorph
 """

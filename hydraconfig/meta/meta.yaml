@@ -13,6 +13,7 @@ SLURM_HYDRA_DIR: ${oc.env:HYDRA_SWEEP_DIR,null}/${oc.env:SLURM_ARRAY_TASK_ID,nul
 SLURM_HYDRA_OVERRIDES: ${oc.env:HYDRA_SWEEP_DIR,null}/${oc.env:SLURM_ARRAY_TASK_ID,null}/.hydra/overrides.yaml
 
 signal_handling: "standard" # standard | requeue
+signal_noop: False
 
 notes: ""
 sys_argv: ""

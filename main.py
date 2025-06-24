@@ -165,7 +165,8 @@ def actual_main(cfg):
         exit(0)
 
     wandb_init(cfg)
-    signals(cfg)
+    if not cfg.meta.signal_noop:
+        signals(cfg)
 
     print("Wandb run directory:", wandb.run.dir)
 

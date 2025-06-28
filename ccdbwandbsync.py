@@ -25,6 +25,7 @@ def sync_run(path, wandb_key, other_wandb_args):
         proc.wait()
         if proc.returncode != 0:
             print(f"[FAIL] Sync failed for {path}")
+            raise Exception(f"[FAIL] Sync failed for {path}")
             return False
         else:
             print(f"[OK] Synced {path}")
@@ -86,3 +87,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+"""
+python3 ccdbwandbsync.py --nproc 8 --root ROOT --other-wandb-args "--project tempccdbdump --include-synced"
+"""

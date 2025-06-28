@@ -19,6 +19,9 @@ def filter_run(rundir):
     else:
         return False
 
+    if os.path.exists(rundir + "/files/eval_sentinel.txt"):
+        return False
+
     if not os.path.exists(rundir + "/files/wandb-summary.json"):
         return False
 

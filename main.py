@@ -69,6 +69,9 @@ def eval(hydra_cfg):
         raise e
         #os.kill(os.getpid(), signal.SIGKILL)
 
+    eval_sentinel = "/".join(path_of_latest_checkpoint.split("/")[:-1]) + "/eval_sentinel.txt"
+    open(eval_sentinel, "w").close()    # touch
+
     if sum(WAS_ALREADY_DONES) == len(WAS_ALREADY_DONES):
         print("Somehow, all these evaluations were already complete. Marking this run as crashed; it's safe to ignore it.")
         os._exit(-1)
@@ -242,9 +245,9 @@ CCDB (need to tune time)
 
 #### python3 main.py --multirun hydra/launcher=ccdbsbatch +hydra/sweep=sbatch hydra.launcher._target_=hydra_plugins.packed_launcher.packedlauncher.SlurmLauncher hydra.launcher.tasks_per_node=2 +hydra.launcher.timeout_min=4300  hydra.launcher.gres=gpu:a100:1 hydra.launcher.cpus_per_task=3 hydra.launcher.mem_gb=32 hydra.launcher.array_parallelism=60  meta.project=ccdbvmaBATCH2 meta.run_name=main meta.wandb_mode=offline meta.seed=-1 vma=vma_only,gt_and_vma task=ft model=modumorph meta.signal_noop=True
 
-python3 main.py --multirun hydra/launcher=ccdbsbatch +hydra/sweep=sbatch hydra.launcher._target_=hydra_plugins.packed_launcher.packedlauncher.SlurmLauncher hydra.launcher.tasks_per_node=2 +hydra.launcher.timeout_min=4300  hydra.launcher.gres=gpu:a100:1 hydra.launcher.cpus_per_task=3 hydra.launcher.mem_gb=32 hydra.launcher.array_parallelism=500  meta.project=vmaBATCH2 meta.run_name=ccdbmain meta.wandb_mode=offline meta.seed=-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 vma=vma_only,gt_and_vma task=ft,incline,exploration model=modumorph meta.signal_noop=True meta.tags=[notest]
+python3 main.py --multirun hydra/launcher=ccdbsbatch +hydra/sweep=sbatch hydra.launcher._target_=hydra_plugins.packed_launcher.packedlauncher.SlurmLauncher hydra.launcher.tasks_per_node=2 +hydra.launcher.timeout_min=4300  hydra.launcher.gres=gpu:a100:1 hydra.launcher.cpus_per_task=3 hydra.launcher.mem_gb=32 hydra.launcher.array_parallelism=500  meta.project=vmaBATCH2 meta.run_name=ccdbmain meta.wandb_mode=offline meta.seed=-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 vma=vma_only,gt_and_vma task=ft,incline model=modumorph meta.signal_noop=True meta.tags=[notest]
 
-python3 main.py --multirun hydra/launcher=ccdbsbatch +hydra/sweep=sbatch hydra.launcher._target_=hydra_plugins.packed_launcher.packedlauncher.SlurmLauncher hydra.launcher.tasks_per_node=1 +hydra.launcher.timeout_min=7100  hydra.launcher.gres=gpu:a100:1 hydra.launcher.cpus_per_task=3 hydra.launcher.mem_gb=32 hydra.launcher.array_parallelism=500  meta.project=vmaBATCH2ROT meta.run_name=ccdbmain meta.wandb_mode=offline meta.seed=-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 vma=vma_only,gt_and_vma task=ob_rot_200M,vt_rot_200M model=modumorph  meta.tags=[notest]
+python3 main.py --multirun hydra/launcher=ccdbsbatch +hydra/sweep=sbatch hydra.launcher._target_=hydra_plugins.packed_launcher.packedlauncher.SlurmLauncher hydra.launcher.tasks_per_node=1 +hydra.launcher.timeout_min=7100  hydra.launcher.gres=gpu:a100:1 hydra.launcher.cpus_per_task=3 hydra.launcher.mem_gb=32 hydra.launcher.array_parallelism=500  meta.project=vmaBATCH2ROT meta.run_name=ccdbmain meta.wandb_mode=offline meta.seed=-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 vma=vma_only,gt_and_vma task=ob_rot_200M,vt_rot_200M,exploration model=modumorph  meta.tags=[notest]
 
 
 #### python3 main.py --multirun hydra/launcher=ccdbsbatch +hydra/sweep=sbatch hydra.launcher._target_=hydra_plugins.packed_launcher.packedlauncher.SlurmLauncher hydra.launcher.tasks_per_node=2 +hydra.launcher.timeout_min=4300  hydra.launcher.gres=gpu:a100:1 hydra.launcher.cpus_per_task=2 hydra.launcher.mem_gb=20 hydra.launcher.array_parallelism=60  meta.project=ccdbvmaBATCH2 meta.run_name=main meta.wandb_mode=offline meta.seed=-1,-1 vma=gt task=ft model=modumorph

@@ -7,6 +7,9 @@ from omegaconf import OmegaConf
 
 
 def filter_run(rundir):
+    if os.path.exists(rundir + "/files/eval_sentinel.txt"):
+        return False
+
     hydracfg = load_saved_hydra_cfg(run)
     if hydracfg.task.task_shorthand.strip() in ["ob", "obRot", "vt", "vtRot"]:
         return False
@@ -19,7 +22,10 @@ def filter_run(rundir):
     else:
         return False
 
-    #if os.path.exists(rundir + "/files/checkpoint_1200.pt"):
+
+
+    if not os.path.exists(rundir + "/files/wandb-summary.json"):
+        return False
 
     return True
 

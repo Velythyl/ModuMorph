@@ -56,7 +56,7 @@ def sync_run(path, wandb_key, other_wandb_args):
 
     try:
         print(f"[FILTERING] {path}")
-        tmpdir = f"{tempfile.mkdtemp()}/run"
+        tmpdir = f"{tempfile.mkdtemp()}/{path.split('/')[-1]}"
         shutil.copytree(path, tmpdir)
         delete_extra_files_from_sync_tmpdir(tmpdir)
 
@@ -73,11 +73,18 @@ def sync_run(path, wandb_key, other_wandb_args):
             executable="/bin/bash"
         )
         proc.wait()
+
+
+
         if proc.returncode != 0:
             print(f"[FAIL] Sync failed for {path}")
             raise Exception(f"[FAIL] Sync failed for {path}")
             return False
         else:
+            x=0
+            if not os.path.exists(sync_sentinel_path(tmpdir)):
+                open(sync_sentinel_path(tmpdir), 'w').close() # touch
+            shutil.copyfile(sync_sentinel_path(tmpdir), sync_sentinel_path(path))
             print(f"[OK] Synced {path}")
             return True
     except Exception as e:
@@ -99,6 +106,8 @@ def main():
     parser.add_argument("--remove-sentinels", action='store_true', help="Remove sync sentinels.")
     parser.add_argument("--other-wandb-args", type=str, default=None, help="WANDB args")
     args = parser.parse_args()
+
+    args.other_wandb_args = f"--mark-synced" if args.other_wandb_args is None else f"--mark-synced " + args.other_wandb_args
 
     # Read API key
     with open(args.wandb_key_path.strip(), "r") as f:

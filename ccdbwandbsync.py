@@ -57,7 +57,7 @@ def main():
     parser.add_argument("--wandb-key-path", type=str, default="./secrets/wandb_key.txt", help="Path to file with WANDB API key.")
     parser.add_argument("--root", type=str, default="wandb", help="Root directory to find offline-* runs in.")
 
-    parser.add_argument("--remove-sentinels", type=str, default=None, help="Remove sync sentinels.")
+    parser.add_argument("--remove-sentinels", type=bool, action='store_true', help="Remove sync sentinels.")
     parser.add_argument("--other-wandb-args", type=str, default=None, help="WANDB args")
     args = parser.parse_args()
 

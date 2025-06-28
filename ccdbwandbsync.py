@@ -12,10 +12,11 @@ def sync_run(path, wandb_key, other_wandb_args):
     env = os.environ.copy()
     env["WANDB_API_KEY"] = wandb_key
 
-    runname = path.split("-")[-1]
-    sync_sentinel = f"{path}/run-{runname}.wandb.synced"
-    if os.path.exists(sync_sentinel):
-        return True
+    if other_wandb_args is not None and "--no-include-synced" in other_wandb_args:
+        runname = path.split("-")[-1]
+        sync_sentinel = f"{path}/run-{runname}.wandb.synced"
+        if os.path.exists(sync_sentinel):
+            return True
 
     try:
         print(f"[START] Syncing {path}")

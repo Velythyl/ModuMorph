@@ -49,6 +49,7 @@ def remove_sync_sentinel(path):
     if os.path.exists(sync_sentinel_path(path)):
         print(f"[FOUND] Sync sentinel at {path}")
         os.remove(sync_sentinel_path(path))
+        print(f"[DELETED] Sync sentinel at {path}")
 
 def main():
     parser = argparse.ArgumentParser(description="Sync wandb offline runs in parallel.")

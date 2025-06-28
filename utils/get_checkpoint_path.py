@@ -16,8 +16,13 @@ def get_checkpoint_path(path, checkpoint_idx):
         if not checkpoints:
             raise FileNotFoundError("No checkpoint files found in directory.")
 
+        if 1300 in [c[0] for c in checkpoints]:
+            # kills unfinished jobs for 200M
+            assert 2400 in [c[0] for c in checkpoints]
+
         # Get the filename with the highest index
         latest_checkpoint = max(checkpoints, key=lambda x: x[0])[1]
+        assert "1200" in latest_checkpoint or "2400" in latest_checkpoint
         checkpoint_path = os.path.join(path, latest_checkpoint)
     else:
         checkpoint_path = os.path.join(path, f"trained_{checkpoint_idx}.pt")

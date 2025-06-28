@@ -8,13 +8,13 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import sys
 import subprocess
 
-def sync_run(path, wandb_key):
+def sync_run(path, wandb_key, change_project):
     env = os.environ.copy()
     env["WANDB_API_KEY"] = wandb_key
     try:
         print(f"[START] Syncing {path}")
         proc = subprocess.Popen(
-            ["wandb", "sync", "--include-offline", path],
+            ["wandb", "sync", "--include-offline", path] + ([] if change_project is None else ["--project", change_project]),
             env=env,
             stdout=sys.stdout,
             stderr=sys.stderr
@@ -36,6 +36,7 @@ def main():
     parser.add_argument("-n", "--nproc", type=int, default=4, help="Number of parallel processes.")
     parser.add_argument("--wandb-key-path", type=str, default="./secrets/wandb_key.txt", help="Path to file with WANDB API key.")
     parser.add_argument("--root", type=str, default="wandb", help="Root directory to find offline-* runs in.")
+    parser.add_argument("--change-project", type=str, default=None, help="WANDB project to upload to")
     args = parser.parse_args()
 
     # Read API key
@@ -64,7 +65,7 @@ def main():
 
     failures = []
     with ThreadPoolExecutor(max_workers=args.nproc) as executor:
-        futures = {executor.submit(sync_run, path, wandb_key): path for path in run_paths}
+        futures = {executor.submit(sync_run, path, wandb_key, args.change_project): path for path in run_paths}
         for future in as_completed(futures):
             path = futures[future]
             if not future.result():

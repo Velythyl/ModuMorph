@@ -10,9 +10,9 @@ def filter_run(rundir):
     if os.path.exists(rundir + "/files/eval_sentinel.txt"):
         return False
 
-    hydracfg = load_saved_hydra_cfg(run)
-    if hydracfg.task.task_shorthand.strip() in ["ob", "obRot", "vt", "vtRot"]:
-        return False
+    #hydracfg = load_saved_hydra_cfg(run)
+    #if hydracfg.task.task_shorthand.strip() in ["ob", "obRot", "vt", "vtRot"]:
+    #    return False
 
     #if load_saved_hydra_cfg(run).vma.add_vma_latents:
     #    return False

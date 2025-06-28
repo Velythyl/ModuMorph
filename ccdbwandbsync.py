@@ -8,14 +8,17 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import sys
 import subprocess
 
+def sync_sentinel_path(path):
+    runname = path.split("-")[-1]
+    sync_sentinel = f"{path}/run-{runname}.wandb.synced"
+    return sync_sentinel
+
 def sync_run(path, wandb_key, other_wandb_args):
     env = os.environ.copy()
     env["WANDB_API_KEY"] = wandb_key
 
     if other_wandb_args is not None and "--no-include-synced" in other_wandb_args:
-        runname = path.split("-")[-1]
-        sync_sentinel = f"{path}/run-{runname}.wandb.synced"
-        if os.path.exists(sync_sentinel):
+        if os.path.exists(sync_sentinel_path(path)):
             print(f"[SKIP] Already synced {path}")
             return True
 
@@ -42,6 +45,10 @@ def sync_run(path, wandb_key, other_wandb_args):
         print(f"[EXCEPTION] {path}: {e}")
         return False
 
+def remove_sync_sentinel(path):
+    if os.path.exists(sync_sentinel_path(path)):
+        print(f"[FOUND] Sync sentinel at {path}")
+        os.remove(sync_sentinel_path(path))
 
 def main():
     parser = argparse.ArgumentParser(description="Sync wandb offline runs in parallel.")
@@ -49,7 +56,7 @@ def main():
     parser.add_argument("--wandb-key-path", type=str, default="./secrets/wandb_key.txt", help="Path to file with WANDB API key.")
     parser.add_argument("--root", type=str, default="wandb", help="Root directory to find offline-* runs in.")
 
-
+    parser.add_argument("--remove-sentinels", type=str, default=None, help="Remove sync sentinels.")
     parser.add_argument("--other-wandb-args", type=str, default=None, help="WANDB args")
     args = parser.parse_args()
 
@@ -76,6 +83,11 @@ def main():
             run_paths += prep_runs_for_root(r)
 
     print(f"Found {len(run_paths)} runs. Launching up to {args.nproc} parallel syncs...")
+
+    if args.remove_sentinels:
+        for path in run_paths:
+            remove_sync_sentinel(path)
+
 
     failures = []
     with ThreadPoolExecutor(max_workers=args.nproc) as executor:

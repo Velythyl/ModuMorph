@@ -17,10 +17,20 @@ def filter_run(rundir):
     #if load_saved_hydra_cfg(run).vma.add_vma_latents:
     #    return False
 
-    if os.path.exists(rundir + "/files/checkpoint_1200.pt") or os.path.exists(rundir + "/files/checkpoint_2400.pt"):
-        pass
+    if os.path.exists(rundir + "/files/checkpoint_1300.pt"):
+        if not os.path.exists(rundir + "/files/checkpoint_2400.pt"):
+            return False
     else:
-        return False
+        if not os.path.exists(rundir + "/files/checkpoint_1200.pt"):
+            return False
+
+    #if os.path.exists(rundir + "/files/checkpoint_1200.pt") or os.path.exists(rundir + "/files/checkpoint_2400.pt"):
+    #    if os.path.exists(rundir + "/files/checkpoint_1300.pt"):
+    #       if not
+    #
+    #    pass
+    #else:
+    #    return False
 
 
 

@@ -42,14 +42,23 @@ def main():
     with open(args.wandb_key_path.strip(), "r") as f:
         wandb_key = f.read().strip()
 
-    if not args.root.endswith("wandb"):
-        args.root = f"{args.root}/wandb"
+    def prep_runs_for_root(root):
 
-    # Find offline runs
-    run_paths = sorted([
-        os.path.join(args.root, d) for d in os.listdir(args.root)
-        if d.startswith("offline-") and os.path.isdir(os.path.join(args.root, d))
-    ])
+        if not root.endswith("wandb"):
+            root = f"{root}/wandb"
+
+        # Find offline runs
+        run_paths = sorted([
+            os.path.join(root, d) for d in os.listdir(root)
+            if d.startswith("offline-") and os.path.isdir(os.path.join(root, d))
+        ])
+        return run_paths
+
+    run_paths = []
+    for r in args.root.split(","):
+        r = r.strip()
+        if r:
+            run_paths += prep_runs_for_root(r)
 
     print(f"Found {len(run_paths)} runs. Launching up to {args.nproc} parallel syncs...")
 

@@ -2,16 +2,48 @@
 
 import argparse
 import os
+import shutil
 import subprocess
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import sys
 import subprocess
+import tempfile
 
 def sync_sentinel_path(path):
     runname = path.split("-")[-1]
     sync_sentinel = f"{path}/run-{runname}.wandb.synced"
     return sync_sentinel
+
+def delete_extra_files_from_sync_tmpdir(tmpdir):
+    TO_KEEP = ["files/*", "*.wandb", "config.yaml", "wandb-metadata.json", "wandb-summary.json"]
+    # todo collect all paths to delete
+
+    # Collect all paths to delete (those that don't match TO_KEEP patterns)
+    to_delete = []
+    keep_patterns = [os.path.join(tmpdir, p) for p in TO_KEEP]
+
+    for root, dirs, files in os.walk(tmpdir, topdown=False):
+        # Check files
+        for name in files:
+            full_path = os.path.join(root, name)
+            import fnmatch
+            if not any(fnmatch.fnmatch(full_path, pattern) for pattern in keep_patterns):
+                to_delete.append(full_path)
+
+        # Check directories (only add if empty or not matching patterns)
+        for name in dirs:
+            full_path = os.path.join(root, name)
+            dir_contents = os.listdir(full_path)
+            if not dir_contents:  # if directory is empty
+                to_delete.append(full_path)
+            # Note: Non-empty directories will be handled when their contents are deleted
+
+    for file in to_delete:
+        try:
+            os.remove(file)
+        except:
+            os.rmdir(file)
 
 def sync_run(path, wandb_key, other_wandb_args):
     env = os.environ.copy()
@@ -23,9 +55,16 @@ def sync_run(path, wandb_key, other_wandb_args):
             return True
 
     try:
+        print(f"[FILTERING] {path}")
+        tmpdir = f"{tempfile.mkdtemp()}/run"
+        shutil.copytree(path, tmpdir)
+        delete_extra_files_from_sync_tmpdir(tmpdir)
+
+
+
         print(f"[START] Syncing {path}")
         proc = subprocess.Popen(
-            f"source ./venv/bin/activate && wandb sync --include-offline {path}" + ("" if other_wandb_args is None else f" {other_wandb_args}"),
+            f"source ./venv/bin/activate && wandb sync --include-offline {tmpdir}" + ("" if other_wandb_args is None else f" {other_wandb_args}"),
             #["wandb", "sync", "--include-offline", path] + ([] if change_project is None else ["--project", change_project]),
             env=env,
             stdout=sys.stdout,

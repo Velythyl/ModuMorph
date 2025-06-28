@@ -16,7 +16,7 @@ def sync_sentinel_path(path):
     return sync_sentinel
 
 def delete_extra_files_from_sync_tmpdir(tmpdir):
-    TO_KEEP = ["files/*", "*.wandb", "config.yaml", "wandb-metadata.json", "wandb-summary.json"]
+    TO_KEEP = ["files/files/*", "*.wandb", "config.yaml", "wandb-metadata.json", "wandb-summary.json"]
     # todo collect all paths to delete
 
     # Collect all paths to delete (those that don't match TO_KEEP patterns)

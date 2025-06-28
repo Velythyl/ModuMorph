@@ -75,8 +75,8 @@ if __name__ == "__main__":
             _runs = [run for run in runs if (run.startswith("run-") or run.startswith("offline-run-"))]
             _runs = list(map(lambda x: f"{target_dir}/{x}", _runs))
 
-            print("Possible runs:")
-            print(_runs)
+            #print("Possible runs:")
+            #print(_runs)
 
             runs = []
             for run in _runs:

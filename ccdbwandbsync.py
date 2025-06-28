@@ -14,10 +14,13 @@ def sync_run(path, wandb_key, change_project):
     try:
         print(f"[START] Syncing {path}")
         proc = subprocess.Popen(
-            ["wandb", "sync", "--include-offline", path] + ([] if change_project is None else ["--project", change_project]),
+            f"source ./venv/bin/activate && wandb sync --include-offline {path}" + ("" if change_project is None else f" --project {change_project}"),
+            #["wandb", "sync", "--include-offline", path] + ([] if change_project is None else ["--project", change_project]),
             env=env,
             stdout=sys.stdout,
-            stderr=sys.stderr
+            stderr=sys.stderr,
+            shell=True,
+            executable="/bin/bash"
         )
         proc.wait()
         if proc.returncode != 0:
@@ -51,7 +54,7 @@ def main():
         # Find offline runs
         run_paths = sorted([
             os.path.join(root, d) for d in os.listdir(root)
-            if d.startswith("offline-") and os.path.isdir(os.path.join(root, d))
+            if (d.startswith("offline-") or d.startswith("run-")) and os.path.isdir(os.path.join(root, d))
         ])
         return run_paths
 

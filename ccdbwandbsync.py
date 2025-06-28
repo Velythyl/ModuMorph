@@ -16,6 +16,7 @@ def sync_run(path, wandb_key, other_wandb_args):
         runname = path.split("-")[-1]
         sync_sentinel = f"{path}/run-{runname}.wandb.synced"
         if os.path.exists(sync_sentinel):
+            print(f"[SKIP] Already synced {path}")
             return True
 
     try:

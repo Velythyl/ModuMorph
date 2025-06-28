@@ -7,9 +7,6 @@ from omegaconf import OmegaConf
 
 
 def filter_run(rundir):
-    if os.path.exists(rundir + "/files/eval_sentinel.txt"):
-        return False
-
     hydracfg = load_saved_hydra_cfg(run)
     if hydracfg.task.task_shorthand.strip() in ["ob", "obRot", "vt", "vtRot"]:
         return False
@@ -22,7 +19,8 @@ def filter_run(rundir):
     else:
         return False
 
-
+    if os.path.exists(rundir + "/files/eval_sentinel.txt"):
+        return False
 
     if not os.path.exists(rundir + "/files/wandb-summary.json"):
         return False
@@ -56,8 +54,6 @@ def main(cfg):
     if hydra_cfg_from_saved_run.task.task_shorthand.strip() in ["ob", "obRot", "vt", "vtRot"]:
         exit()
 
-    hydra_cfg_from_saved_run.postrun_eval_del_previous_evals = cfg.postrun_eval_del_previous_evals
-
 
     return actual_main(hydra_cfg_from_saved_run)
 
@@ -72,7 +68,7 @@ if __name__ == "__main__":
             target_dir = sys.argv[i + 1]
             target_dir = target_dir + "/wandb"
             runs = os.listdir(target_dir)
-            _runs = [run for run in runs if (run.startswith("run-") or run.startswith("offline-run-"))]
+            _runs = [run for run in runs if run.startswith("run-")]
             _runs = list(map(lambda x: f"{target_dir}/{x}", _runs))
 
             runs = []
@@ -92,5 +88,5 @@ if __name__ == "__main__":
 
 python3 postrun_eval.py --multirun hydra/launcher=sbatch +hydra/sweep=sbatch +hydra.launcher.timeout_min=2879  hydra.launcher.gres=gpu:l40s:1 hydra.launcher.cpus_per_task=8 hydra.launcher.mem_gb=32 hydra.launcher.array_parallelism=50 hydra.launcher.partition=long meta.project=vmaBATCH2 meta.run_name=main postrun_eval_dir=
 
-python3 postrun_eval.py --multirun hydra/launcher=sbatch +hydra/sweep=sbatch hydra.launcher._target_=hydra_plugins.packed_launcher.packedlauncher.SlurmLauncher  +hydra.launcher.timeout_min=4300  hydra.launcher.gres=gpu:rtx8000:1 hydra.launcher.cpus_per_task=3 hydra.launcher.tasks_per_node=2 hydra.launcher.mem_gb=32 hydra.launcher.array_parallelism=60 hydra.launcher.partition=long meta.project=vmaBATCH2_yay meta.run_name=eval postrun_eval_dir=
+python3 postrun_eval.py --multirun hydra/launcher=sbatch +hydra/sweep=sbatch hydra.launcher._target_=hydra_plugins.packed_launcher.packedlauncher.SlurmLauncher  +hydra.launcher.timeout_min=4300  hydra.launcher.gres=gpu:rtx8000:1 hydra.launcher.cpus_per_task=2 hydra.launcher.tasks_per_node=3 hydra.launcher.mem_gb=32 hydra.launcher.array_parallelism=60 hydra.launcher.partition=long meta.project=vmaBATCH2_yay meta.run_name=eval postrun_eval_dir=
 """

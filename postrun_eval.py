@@ -24,8 +24,8 @@ def filter_run(rundir):
 
 
 
-    if not os.path.exists(rundir + "/files/wandb-summary.json"):
-        return False
+    #if not os.path.exists(rundir + "/files/wandb-summary.json"):
+    #    return False
 
     return True
 

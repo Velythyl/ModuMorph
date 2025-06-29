@@ -73,8 +73,9 @@ def eval(hydra_cfg):
     open(eval_sentinel, "w").close()    # touch
 
     if sum(WAS_ALREADY_DONES) == len(WAS_ALREADY_DONES):
-        print("Somehow, all these evaluations were already complete. Marking this run as crashed; it's safe to ignore it.")
-        os._exit(-1)
+        if not hydra_cfg.postrun_eval_upload_even_if_files_exist:
+            print("Somehow, all these evaluations were already complete. Marking this run as crashed; it's safe to ignore it.")
+            os._exit(-1)
 
 def eval_newjob(hydra_cfg):
     import yaml

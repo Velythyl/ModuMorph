@@ -10,5 +10,7 @@ defaults:
   - secrets: secrets
 
 other_yacs_args: ""# DEVICE cpu"
+
 postrun_eval_dir: "./savedruns" # only used by postrun_eval, ignore otherwise
 postrun_eval_del_previous_evals: False
+postrun_eval_upload_even_if_files_exist: False

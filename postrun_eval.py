@@ -106,4 +106,9 @@ if __name__ == "__main__":
 python3 postrun_eval.py --multirun hydra/launcher=sbatch +hydra/sweep=sbatch +hydra.launcher.timeout_min=2879  hydra.launcher.gres=gpu:l40s:1 hydra.launcher.cpus_per_task=8 hydra.launcher.mem_gb=32 hydra.launcher.array_parallelism=50 hydra.launcher.partition=long meta.project=vmaBATCH2 meta.run_name=main postrun_eval_dir=
 
 python3 postrun_eval.py --multirun hydra/launcher=sbatch +hydra/sweep=sbatch hydra.launcher._target_=hydra_plugins.packed_launcher.packedlauncher.SlurmLauncher  +hydra.launcher.timeout_min=4300  hydra.launcher.gres=gpu:rtx8000:1 hydra.launcher.cpus_per_task=3 hydra.launcher.tasks_per_node=2 hydra.launcher.mem_gb=32 hydra.launcher.array_parallelism=60 hydra.launcher.partition=long meta.project=vmaBATCH2_yay meta.run_name=eval postrun_eval_dir=
+
+# ccdb
+
+python3 postrun_eval.py --multirun hydra/launcher=ccdbsbatch +hydra/sweep=sbatch hydra.launcher._target_=hydra_plugins.packed_launcher.packedlauncher.SlurmLauncher hydra.launcher.tasks_per_node=3 +hydra.launcher.timeout_min=8000  hydra.launcher.gres=gpu:a100:1 hydra.launcher.cpus_per_task=2 hydra.launcher.mem_gb=40 hydra.launcher.array_parallelism=500  meta.project=vmaBATCH2_yay meta.run_name=eval postrun_eval_dir=
+
 """

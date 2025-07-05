@@ -80,18 +80,25 @@ if __name__ == "__main__":
     for i, element in enumerate(sys.argv):
         if element == "--prepare-run":
             target_dir = sys.argv[i + 1]
-            target_dir = target_dir + "/wandb"
-            runs = os.listdir(target_dir)
-            _runs = [run for run in runs if (run.startswith("run-") or run.startswith("offline-run-"))]
-            _runs = list(map(lambda x: f"{target_dir}/{x}", _runs))
 
-            #print("Possible runs:")
-            #print(_runs)
+            def gather(dir):
+                target_dir = dir + "/wandb"
+                runs = os.listdir(target_dir)
+                _runs = [run for run in runs if (run.startswith("run-") or run.startswith("offline-run-"))]
+                _runs = list(map(lambda x: f"{target_dir}/{x}", _runs))
+
+                #print("Possible runs:")
+                #print(_runs)
+
+                runs = []
+                for run in _runs:
+                    if filter_run(run):
+                        runs.append(run)
+                return runs
 
             runs = []
-            for run in _runs:
-                if filter_run(run):
-                    runs.append(run)
+            for t in target_dir.split(","):
+                runs += gather(t)
 
             print("RUNS TO RUN\n\n\n")
             print(",".join(runs))
